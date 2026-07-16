@@ -19,6 +19,7 @@
     "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "ci:check": "npm run lint:check && npm run test:unit:ci && npm run test:e2e:ci && npm run build",
     "db:migrate:postgres": "ts-node scripts/migrate-sqlite-to-postgres.ts",
+    "github:protect-main": "node scripts/apply-github-branch-protection.mjs",
     "test": "jest",
     "test:unit:ci": "jest --runInBand --coverage --coverageReporters=json-summary --coverageReporters=text-summary",
     "test:watch": "jest --watch",
