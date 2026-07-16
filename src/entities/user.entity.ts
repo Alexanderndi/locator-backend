@@ -30,7 +30,12 @@ export class User {
   @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
   phone: string | null;
 
-  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'password_hash',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   passwordHash: string | null;
 
   @Column({ name: 'display_name', type: 'varchar', length: 100 })

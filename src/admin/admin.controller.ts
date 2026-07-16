@@ -52,10 +52,7 @@ export class AdminController {
   }
 
   @Get('events/:eventId/categories')
-  listCategories(
-    @Param('eventId') eventId: string,
-    @CurrentUser() user: User,
-  ) {
+  listCategories(@Param('eventId') eventId: string, @CurrentUser() user: User) {
     return this.adminService.listCategories(eventId, user);
   }
 
@@ -73,10 +70,7 @@ export class AdminController {
   }
 
   @Get('events/:eventId/vendors')
-  listVendors(
-    @Param('eventId') eventId: string,
-    @CurrentUser() user: User,
-  ) {
+  listVendors(@Param('eventId') eventId: string, @CurrentUser() user: User) {
     return this.adminService.listVendors(eventId, user);
   }
 
@@ -197,11 +191,7 @@ export class AdminController {
     @Param('announcementId') announcementId: string,
     @CurrentUser() user: User,
   ) {
-    return this.adminService.deleteAnnouncement(
-      eventId,
-      announcementId,
-      user,
-    );
+    return this.adminService.deleteAnnouncement(eventId, announcementId, user);
   }
 
   @Get('dashboard/:eventId')

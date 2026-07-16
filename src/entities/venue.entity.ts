@@ -24,16 +24,40 @@ export class Venue {
   @Column({ type: 'decimal', precision: 10, scale: 7 })
   longitude: number;
 
-  @Column({ name: 'boundary_north', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'boundary_north',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   boundaryNorth: number | null;
 
-  @Column({ name: 'boundary_south', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'boundary_south',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   boundarySouth: number | null;
 
-  @Column({ name: 'boundary_east', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'boundary_east',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   boundaryEast: number | null;
 
-  @Column({ name: 'boundary_west', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'boundary_west',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   boundaryWest: number | null;
 
   @CreateDateColumn({ name: 'created_at' })

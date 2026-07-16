@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { IsEmail, IsOptional, IsUUID } from 'class-validator';
 
 export class VendorRequestConsentDto {
   @IsEmail()

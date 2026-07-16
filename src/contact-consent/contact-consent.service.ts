@@ -126,7 +126,11 @@ export class ContactConsentService {
     };
   }
 
-  async respond(userId: string, requestId: string, dto: RespondContactConsentDto) {
+  async respond(
+    userId: string,
+    requestId: string,
+    dto: RespondContactConsentDto,
+  ) {
     const request = await this.consentRepository.findOne({
       where: { id: requestId, userId },
       relations: ['vendor', 'user'],

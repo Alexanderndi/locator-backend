@@ -117,7 +117,9 @@ export class AuthService {
       throw new NotFoundException('Event not found');
     }
     if (![EventStatus.ACTIVE, EventStatus.PUBLISHED].includes(event.status)) {
-      throw new BadRequestException('This event is not open for vendor registration');
+      throw new BadRequestException(
+        'This event is not open for vendor registration',
+      );
     }
 
     const slug = await this.uniqueVendorSlug(dto.eventId, dto.businessName);
@@ -127,10 +129,8 @@ export class AuthService {
       dto.boothNumber,
     );
 
-    const latitude =
-      dto.latitude ?? Number(event.venue?.latitude ?? 5.0379);
-    const longitude =
-      dto.longitude ?? Number(event.venue?.longitude ?? 7.9128);
+    const latitude = dto.latitude ?? Number(event.venue?.latitude ?? 5.0379);
+    const longitude = dto.longitude ?? Number(event.venue?.longitude ?? 7.9128);
 
     const vendor = await this.vendorRepository.save(
       this.vendorRepository.create({
@@ -185,11 +185,12 @@ export class AuthService {
   }
 
   private async uniqueVendorSlug(eventId: string, businessName: string) {
-    const base = businessName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 80) || 'vendor';
+    const base =
+      businessName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) || 'vendor';
 
     let slug = base;
     let suffix = 1;
@@ -254,7 +255,9 @@ export class AuthService {
   async requestOtp(dto: OtpRequestDto) {
     const phone = normalizePhone(dto.phone);
     if (!isValidPhone(phone)) {
-      throw new BadRequestException('Enter a valid phone number with country code');
+      throw new BadRequestException(
+        'Enter a valid phone number with country code',
+      );
     }
 
     const cooldownMs = 60 * 1000;
@@ -302,7 +305,9 @@ export class AuthService {
   async verifyOtp(dto: OtpVerifyDto) {
     const phone = normalizePhone(dto.phone);
     if (!isValidPhone(phone)) {
-      throw new BadRequestException('Enter a valid phone number with country code');
+      throw new BadRequestException(
+        'Enter a valid phone number with country code',
+      );
     }
 
     const otp = await this.otpRepository.findOne({
@@ -351,7 +356,9 @@ export class AuthService {
       user: this.sanitizeUser(user),
       ...tokens,
       isNewUser,
-      message: isNewUser ? 'Account created successfully' : 'Signed in successfully',
+      message: isNewUser
+        ? 'Account created successfully'
+        : 'Signed in successfully',
     };
   }
 
@@ -363,7 +370,8 @@ export class AuthService {
     };
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = randomBytes(48).toString('hex');
-    const refreshExpires = this.configService.get<string>('jwt.refreshExpiresIn') ?? '7d';
+    const refreshExpires =
+      this.configService.get<string>('jwt.refreshExpiresIn') ?? '7d';
     const expiresAt = this.parseExpiry(refreshExpires);
 
     await this.refreshTokenRepository.save(

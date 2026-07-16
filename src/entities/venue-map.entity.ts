@@ -21,10 +21,22 @@ export class VenueMap {
   @Column({ name: 'floor_plan_url', type: 'text', nullable: true })
   floorPlanUrl: string | null;
 
-  @Column({ name: 'center_lat', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'center_lat',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   centerLat: number | null;
 
-  @Column({ name: 'center_lng', type: 'decimal', precision: 10, scale: 7, nullable: true })
+  @Column({
+    name: 'center_lng',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
   centerLng: number | null;
 
   @ManyToOne(() => Event, (event) => event.venueMaps)

@@ -97,8 +97,9 @@ export class AnalyticsService {
       const query = this.normalizeQuery(e.properties?.query);
       if (!query) continue;
       searchCounts.set(query, (searchCounts.get(query) ?? 0) + 1);
-      const resultCount =
-        Number(e.properties?.result_count ?? e.properties?.resultCount ?? 0);
+      const resultCount = Number(
+        e.properties?.result_count ?? e.properties?.resultCount ?? 0,
+      );
       if (resultCount === 0) {
         zeroResultCounts.set(query, (zeroResultCounts.get(query) ?? 0) + 1);
       }
@@ -119,7 +120,10 @@ export class AnalyticsService {
           query,
           searchCount,
           clickCount,
-          ctr: searchCount > 0 ? Math.round((clickCount / searchCount) * 1000) / 1000 : 0,
+          ctr:
+            searchCount > 0
+              ? Math.round((clickCount / searchCount) * 1000) / 1000
+              : 0,
           zeroResultCount: zeroResultCounts.get(query) ?? 0,
         };
       });
@@ -149,7 +153,9 @@ export class AnalyticsService {
     };
   }
 
-  searchAnalyticsCsv(report: Awaited<ReturnType<AnalyticsService['searchAnalytics']>>) {
+  searchAnalyticsCsv(
+    report: Awaited<ReturnType<AnalyticsService['searchAnalytics']>>,
+  ) {
     const lines = [
       'query,search_count,click_count,ctr,zero_result_count',
       ...report.topSearches.map(
@@ -207,8 +213,9 @@ export class AnalyticsService {
     const topVendors = await this.buildTopVendors(events24h);
     const dailyTrend = this.buildDailyTrend(trendEvents, trendStart, now);
 
-    let comparison: Awaited<ReturnType<AnalyticsService['dashboardSummary']>> | null =
-      null;
+    let comparison: Awaited<
+      ReturnType<AnalyticsService['dashboardSummary']>
+    > | null = null;
     if (compareEventId && compareEventId !== eventId) {
       comparison = await this.dashboardSummary(compareEventId);
     }
@@ -297,17 +304,18 @@ export class AnalyticsService {
         uniqueUsers.add(e.userId);
       } else {
         const anonymousId = e.properties?.anonymous_id;
-        if (anonymousId) uniqueUsers.add(String(anonymousId));
+        if (
+          typeof anonymousId === 'string' ||
+          typeof anonymousId === 'number'
+        ) {
+          uniqueUsers.add(String(anonymousId));
+        }
       }
     }
     return uniqueUsers.size;
   }
 
-  private buildDailyTrend(
-    events: AnalyticsEvent[],
-    start: Date,
-    end: Date,
-  ) {
+  private buildDailyTrend(events: AnalyticsEvent[], start: Date, end: Date) {
     const days: Array<{
       date: string;
       activeUsers: number;
@@ -402,7 +410,9 @@ export class AnalyticsService {
   private actorKey(event: AnalyticsEvent): string {
     if (event.userId) return event.userId;
     const anonymousId = event.properties?.anonymous_id;
-    if (anonymousId) return String(anonymousId);
+    if (typeof anonymousId === 'string' || typeof anonymousId === 'number') {
+      return String(anonymousId);
+    }
     return 'unknown';
   }
 

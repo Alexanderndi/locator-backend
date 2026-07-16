@@ -18,7 +18,12 @@ export class Organization {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ name: 'contact_email', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'contact_email',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   contactEmail: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

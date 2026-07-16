@@ -73,9 +73,7 @@ export class NotificationsService {
     return {
       data: announcements
         .filter(
-          (a) =>
-            a.publishedAt <= now &&
-            (!a.expiresAt || a.expiresAt > now),
+          (a) => a.publishedAt <= now && (!a.expiresAt || a.expiresAt > now),
         )
         .map((a) => ({
           id: a.id,
@@ -204,9 +202,7 @@ export class NotificationsService {
       });
     }
 
-    notifications.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-    );
+    notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return { data: notifications };
   }

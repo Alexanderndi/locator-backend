@@ -47,7 +47,9 @@ export async function buildVendorQrPdf(
       doc
         .fontSize(13)
         .fillColor('#344054')
-        .text(`Booth: ${vendor.boothNumber ?? 'Unassigned'}`, { align: 'center' });
+        .text(`Booth: ${vendor.boothNumber ?? 'Unassigned'}`, {
+          align: 'center',
+        });
       if (vendor.zone) {
         doc.text(`Zone: ${vendor.zone}`, { align: 'center' });
       }

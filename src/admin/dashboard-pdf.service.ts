@@ -28,7 +28,9 @@ export interface DashboardPdfData {
   } | null;
 }
 
-export async function buildDashboardPdf(data: DashboardPdfData): Promise<Buffer> {
+export async function buildDashboardPdf(
+  data: DashboardPdfData,
+): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ margin: 48 });
     const chunks: Buffer[] = [];
@@ -86,7 +88,9 @@ export async function buildDashboardPdf(data: DashboardPdfData): Promise<Buffer>
       doc.fontSize(11).text('No vendor views recorded yet.');
     } else {
       data.topVendors.forEach((vendor, index) => {
-        doc.fontSize(11).text(`${index + 1}. ${vendor.name} — ${vendor.views} views`);
+        doc
+          .fontSize(11)
+          .text(`${index + 1}. ${vendor.name} — ${vendor.views} views`);
       });
     }
 

@@ -34,7 +34,8 @@ export const createTypeOrmOptions = (): TypeOrmModuleOptions => {
   return {
     type: 'better-sqlite3',
     database:
-      process.env.DATABASE_PATH ?? (process.env.VERCEL ? '/tmp/fvl.db' : 'fvl.db'),
+      process.env.DATABASE_PATH ??
+      (process.env.VERCEL ? '/tmp/fvl.db' : 'fvl.db'),
     entities: ALL_ENTITIES,
     synchronize,
   };

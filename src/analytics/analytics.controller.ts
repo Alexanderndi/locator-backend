@@ -17,7 +17,11 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/enums';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../entities/user.entity';
-import { TrackEventDto, TrackEventsBatchDto, SearchAnalyticsQueryDto } from './dto/analytics.dto';
+import {
+  TrackEventDto,
+  TrackEventsBatchDto,
+  SearchAnalyticsQueryDto,
+} from './dto/analytics.dto';
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -42,11 +46,7 @@ export class AnalyticsController {
     @Param('eventId') eventId: string,
     @Query() query: SearchAnalyticsQueryDto,
   ) {
-    return this.analyticsService.searchAnalytics(
-      eventId,
-      query.from,
-      query.to,
-    );
+    return this.analyticsService.searchAnalytics(eventId, query.from, query.to);
   }
 
   @Get('search/:eventId/export')

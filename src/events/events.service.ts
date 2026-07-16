@@ -8,7 +8,10 @@ import { Category } from '../entities/category.entity';
 import { Vendor } from '../entities/vendor.entity';
 import { EventStatus } from '../common/enums';
 import { computeEntryPoints } from '../common/utils/geo.util';
-import { haversineDistanceMeters, parseNearParam } from '../common/utils/geo.util';
+import {
+  haversineDistanceMeters,
+  parseNearParam,
+} from '../common/utils/geo.util';
 
 @Injectable()
 export class EventsService {
@@ -39,9 +42,11 @@ export class EventsService {
       });
     }
 
-    qb.andWhere('event.end_date >= :now', { now: new Date().toISOString().slice(0, 10) });
+    qb.andWhere('event.end_date >= :now', {
+      now: new Date().toISOString().slice(0, 10),
+    });
 
-    let events = await qb.getMany();
+    const events = await qb.getMany();
     const nearPoint = parseNearParam(near);
 
     if (nearPoint) {

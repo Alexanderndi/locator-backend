@@ -34,7 +34,8 @@ export class PushDeliveryService {
     for (const token of tokens) {
       const pref = prefByUser.get(token.userId);
       const pushEnabled = pref?.pushEnabled ?? true;
-      const isEmergency = announcement.priority === AnnouncementPriority.EMERGENCY;
+      const isEmergency =
+        announcement.priority === AnnouncementPriority.EMERGENCY;
 
       if (!pushEnabled && !isEmergency) {
         skipped++;
