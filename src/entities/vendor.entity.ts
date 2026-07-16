@@ -68,7 +68,13 @@ export class Vendor {
   @Column({ name: 'qr_code_payload', type: 'text', nullable: true })
   qrCodePayload: string | null;
 
-  @Column({ name: 'avg_rating', type: 'decimal', precision: 3, scale: 2, default: 0 })
+  @Column({
+    name: 'avg_rating',
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 0,
+  })
   avgRating: number;
 
   @Column({ name: 'review_count', type: 'int', default: 0 })
@@ -86,7 +92,7 @@ export class Vendor {
   @Column({ name: 'deactivated_by_id', type: 'uuid', nullable: true })
   deactivatedById: string | null;
 
-  @Column({ name: 'deactivated_at', nullable: true })
+  @Column({ name: 'deactivated_at', type: Date, nullable: true })
   deactivatedAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })

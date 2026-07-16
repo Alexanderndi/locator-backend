@@ -25,22 +25,31 @@ export class ContactConsentRequest {
   @Column({ name: 'event_id', type: 'uuid' })
   eventId: string;
 
-  @Column({ type: 'varchar', length: 20, default: ContactConsentStatus.PENDING })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: ContactConsentStatus.PENDING,
+  })
   status: ContactConsentStatus;
 
-  @Column({ name: 'shared_email', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'shared_email',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   sharedEmail: string | null;
 
   @Column({ name: 'shared_phone', type: 'varchar', length: 20, nullable: true })
   sharedPhone: string | null;
 
-  @Column({ name: 'requested_at' })
+  @Column({ name: 'requested_at', type: Date })
   requestedAt: Date;
 
-  @Column({ name: 'responded_at', nullable: true })
+  @Column({ name: 'responded_at', type: Date, nullable: true })
   respondedAt: Date | null;
 
-  @Column({ name: 'expires_at', nullable: true })
+  @Column({ name: 'expires_at', type: Date, nullable: true })
   expiresAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })

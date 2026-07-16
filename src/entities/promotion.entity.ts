@@ -21,13 +21,19 @@ export class Promotion {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ name: 'discount_percent', type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column({
+    name: 'discount_percent',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   discountPercent: number | null;
 
-  @Column({ name: 'start_date', nullable: true })
+  @Column({ name: 'start_date', type: Date, nullable: true })
   startDate: Date | null;
 
-  @Column({ name: 'end_date', nullable: true })
+  @Column({ name: 'end_date', type: Date, nullable: true })
   endDate: Date | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })

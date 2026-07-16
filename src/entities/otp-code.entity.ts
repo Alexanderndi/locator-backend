@@ -16,7 +16,7 @@ export class OtpCode {
   @Column({ type: 'varchar', length: 6 })
   code: string;
 
-  @Column({ name: 'expires_at' })
+  @Column({ name: 'expires_at', type: Date })
   expiresAt: Date;
 
   @Column({ name: 'attempts', type: 'int', default: 0 })

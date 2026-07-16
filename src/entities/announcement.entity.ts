@@ -26,10 +26,10 @@ export class Announcement {
   @Column({ type: 'varchar', length: 20, default: AnnouncementPriority.NORMAL })
   priority: AnnouncementPriority;
 
-  @Column({ name: 'published_at' })
+  @Column({ name: 'published_at', type: Date })
   publishedAt: Date;
 
-  @Column({ name: 'expires_at', nullable: true })
+  @Column({ name: 'expires_at', type: Date, nullable: true })
   expiresAt: Date | null;
 
   @Column({ name: 'updated_by_id', type: 'uuid', nullable: true })
@@ -38,7 +38,7 @@ export class Announcement {
   @Column({ name: 'deleted_by_id', type: 'uuid', nullable: true })
   deletedById: string | null;
 
-  @Column({ name: 'deleted_at', nullable: true })
+  @Column({ name: 'deleted_at', type: Date, nullable: true })
   deletedAt: Date | null;
 
   @UpdateDateColumn({ name: 'updated_at' })
