@@ -375,7 +375,10 @@ export class AnalyticsService {
     if (rangeStart < eventStart) rangeStart = eventStart;
     if (rangeEnd > eventEnd) rangeEnd = eventEnd;
     if (rangeEnd > new Date()) rangeEnd = new Date();
-    if (rangeStart > rangeEnd) rangeStart = new Date(rangeEnd);
+    if (rangeStart > rangeEnd) {
+      rangeStart = new Date(rangeEnd);
+      rangeStart.setHours(0, 0, 0, 0);
+    }
 
     rangeEnd.setHours(23, 59, 59, 999);
 
