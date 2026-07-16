@@ -9,10 +9,7 @@ import { User } from '../entities/user.entity';
 import { Vendor } from '../entities/vendor.entity';
 import { EventsService } from '../events/events.service';
 import { VendorsService } from '../vendors/vendors.service';
-import {
-  ContactConsentStatus,
-  UserRole,
-} from '../common/enums';
+import { ContactConsentStatus, UserRole } from '../common/enums';
 
 describe('ContactConsentService', () => {
   let service: ContactConsentService;
@@ -20,8 +17,10 @@ describe('ContactConsentService', () => {
   const mockConsentRepo = {
     findOne: jest.fn(),
     find: jest.fn(),
-    create: jest.fn((dto) => dto),
-    save: jest.fn(async (dto) => ({ id: 'req-1', ...dto })),
+    create: jest.fn((dto: Partial<ContactConsentRequest>) => dto),
+    save: jest.fn((dto: Partial<ContactConsentRequest>) =>
+      Promise.resolve({ id: 'req-1', ...dto }),
+    ),
   };
 
   const mockFavoriteRepo = {
@@ -54,9 +53,15 @@ describe('ContactConsentService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContactConsentService,
-        { provide: getRepositoryToken(ContactConsentRequest), useValue: mockConsentRepo },
+        {
+          provide: getRepositoryToken(ContactConsentRequest),
+          useValue: mockConsentRepo,
+        },
         { provide: getRepositoryToken(Favorite), useValue: mockFavoriteRepo },
-        { provide: getRepositoryToken(AnalyticsEvent), useValue: mockAnalyticsRepo },
+        {
+          provide: getRepositoryToken(AnalyticsEvent),
+          useValue: mockAnalyticsRepo,
+        },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: getRepositoryToken(Vendor), useValue: mockVendorRepo },
         { provide: EventsService, useValue: mockEventsService },
@@ -106,20 +111,21 @@ describe('ContactConsentService', () => {
       role: UserRole.VISITOR,
       displayName: 'Demo',
     });
-    mockFavoriteRepo.findOne.mockResolvedValue({ userId: 'user-1', vendorId: 'vendor-1' });
+    mockFavoriteRepo.findOne.mockResolvedValue({
+      userId: 'user-1',
+      vendorId: 'vendor-1',
+    });
     mockConsentRepo.find.mockResolvedValue([]);
-    mockConsentRepo.findOne
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce({
-        id: 'req-1',
-        vendorId: 'vendor-1',
-        userId: 'user-1',
-        eventId: 'event-1',
-        status: ContactConsentStatus.PENDING,
-        requestedAt: new Date(),
-        vendor: { id: 'vendor-1', name: 'Test Vendor', boothNumber: 'A-1' },
-        user: { id: 'user-1', displayName: 'Demo' },
-      });
+    mockConsentRepo.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({
+      id: 'req-1',
+      vendorId: 'vendor-1',
+      userId: 'user-1',
+      eventId: 'event-1',
+      status: ContactConsentStatus.PENDING,
+      requestedAt: new Date(),
+      vendor: { id: 'vendor-1', name: 'Test Vendor', boothNumber: 'A-1' },
+      user: { id: 'user-1', displayName: 'Demo' },
+    });
 
     const result = await service.createRequest('vendor-1', {
       eventId: 'event-1',
@@ -149,9 +155,13 @@ describe('ContactConsentService', () => {
     };
 
     mockConsentRepo.findOne.mockResolvedValue(pendingRequest);
-    mockConsentRepo.save.mockImplementation(async (dto) => dto);
+    mockConsentRepo.save.mockImplementation(
+      (dto: Partial<ContactConsentRequest>) => Promise.resolve(dto),
+    );
 
-    const accepted = await service.respond('user-1', 'req-1', { action: 'accept' });
+    const accepted = await service.respond('user-1', 'req-1', {
+      action: 'accept',
+    });
     expect(accepted.status).toBe(ContactConsentStatus.ACCEPTED);
     expect(mockConsentRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -161,7 +171,9 @@ describe('ContactConsentService', () => {
     );
 
     pendingRequest.status = ContactConsentStatus.PENDING;
-    const declined = await service.respond('user-1', 'req-1', { action: 'decline' });
+    const declined = await service.respond('user-1', 'req-1', {
+      action: 'decline',
+    });
     expect(declined.status).toBe(ContactConsentStatus.DECLINED);
     expect(mockConsentRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -180,7 +192,10 @@ describe('ContactConsentService', () => {
       id: 'user-1',
       role: UserRole.VISITOR,
     });
-    mockFavoriteRepo.findOne.mockResolvedValue({ userId: 'user-1', vendorId: 'vendor-1' });
+    mockFavoriteRepo.findOne.mockResolvedValue({
+      userId: 'user-1',
+      vendorId: 'vendor-1',
+    });
     mockConsentRepo.find.mockResolvedValue([]);
     mockConsentRepo.findOne.mockResolvedValue({
       id: 'existing',
@@ -188,7 +203,10 @@ describe('ContactConsentService', () => {
     });
 
     await expect(
-      service.createRequest('vendor-1', { eventId: 'event-1', userId: 'user-1' }),
+      service.createRequest('vendor-1', {
+        eventId: 'event-1',
+        userId: 'user-1',
+      }),
     ).rejects.toThrow(ConflictException);
   });
 });

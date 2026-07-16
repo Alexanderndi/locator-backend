@@ -17,11 +17,13 @@ import { User } from '../entities/user.entity';
 import { EventsService } from '../events/events.service';
 import { MediaService } from '../media/media.service';
 import { UserRole } from '../common/enums';
-import { haversineDistanceMeters, roundCoordinate } from '../common/utils/geo.util';
+import {
+  haversineDistanceMeters,
+  roundCoordinate,
+} from '../common/utils/geo.util';
 import { paginate } from '../common/utils/pagination.util';
 import { CreateReviewDto, UpdateReviewDto } from './dto/vendor.dto';
 import { resolveReviewStatus } from '../common/utils/moderation.util';
-import type { ReviewStatus } from '../entities/review.entity';
 
 @Injectable()
 export class VendorsService {
@@ -116,15 +118,13 @@ export class VendorsService {
         return b.vendor.reviewCount - a.vendor.reviewCount;
       });
 
-    const data = await Promise.all(
-      nearby.map(async ({ vendor, distance }) => ({
-        ...(this.formatVendorSummary(vendor, event)),
-        distance: Math.round(distance),
-        latitude: roundCoordinate(Number(vendor.latitude)),
-        longitude: roundCoordinate(Number(vendor.longitude)),
-        isOpen: vendor.isActive && eventOpen,
-      })),
-    );
+    const data = nearby.map(({ vendor, distance }) => ({
+      ...this.formatVendorSummary(vendor, event),
+      distance: Math.round(distance),
+      latitude: roundCoordinate(Number(vendor.latitude)),
+      longitude: roundCoordinate(Number(vendor.longitude)),
+      isOpen: vendor.isActive && eventOpen,
+    }));
 
     return { data, meta: { total: data.length, radius } };
   }
@@ -162,7 +162,9 @@ export class VendorsService {
 
     scored.sort((a, b) => b.score - a.score);
     const top = scored.slice(0, 10);
-    const data = top.map(({ vendor }) => this.formatVendorSummary(vendor, event));
+    const data = top.map(({ vendor }) =>
+      this.formatVendorSummary(vendor, event),
+    );
     return { data, personalized: !!user };
   }
 
@@ -322,12 +324,7 @@ export class VendorsService {
     };
   }
 
-  async getReviews(
-    vendorId: string,
-    page = 1,
-    pageSize = 20,
-    user?: User,
-  ) {
+  async getReviews(vendorId: string, page = 1, pageSize = 20, user?: User) {
     await this.ensureVendor(vendorId);
     const approved = await this.reviewRepository.find({
       where: { vendorId, status: 'approved' },
@@ -439,7 +436,7 @@ export class VendorsService {
       userId: review.userId,
       rating: review.rating,
       comment: review.comment,
-      status: review.status as ReviewStatus,
+      status: review.status,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
       isOwn: currentUserId != null && review.userId === currentUserId,
@@ -476,7 +473,11 @@ export class VendorsService {
     };
   }
 
-  private isEventOpen(event: { startDate: string; endDate: string; status: string }) {
+  private isEventOpen(event: {
+    startDate: string;
+    endDate: string;
+    status: string;
+  }) {
     if (event.status !== 'active') return false;
     const today = new Date().toISOString().slice(0, 10);
     return today >= event.startDate && today <= event.endDate;
@@ -505,13 +506,13 @@ export class VendorsService {
 
   private stripHtml(value: string | null): string | null {
     if (!value) return null;
-    return value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    return value
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
-  private buildGallery(
-    logoUrl: string | null,
-    products: Product[],
-  ): string[] {
+  private buildGallery(logoUrl: string | null, products: Product[]): string[] {
     const images = new Set<string>();
     const logo = this.mediaService.toPublicUrl(logoUrl);
     if (logo) images.add(logo);
@@ -545,8 +546,7 @@ export class VendorsService {
     });
 
     const todayItems = scheduleItems.filter((item) => {
-      const day =
-        item.dayLabel ?? item.startTime.toISOString().slice(0, 10);
+      const day = item.dayLabel ?? item.startTime.toISOString().slice(0, 10);
       return day === today;
     });
 
@@ -633,7 +633,7 @@ export class VendorsService {
     vendor: Vendor,
     event?: { startDate: string; endDate: string } | null,
   ) {
-                  return {
+    return {
       id: vendor.id,
       name: vendor.name,
       category: vendor.category?.name ?? null,

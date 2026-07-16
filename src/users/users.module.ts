@@ -7,10 +7,7 @@ import { UserPreference } from '../entities/user-preference.entity';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, UserPreference]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User, UserPreference]), AuthModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

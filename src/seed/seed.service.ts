@@ -96,7 +96,8 @@ export class SeedService implements OnModuleInit {
 
     if (legacy.venue) {
       legacy.venue.name = 'Akwa Ibom Xmas Village Grounds';
-      legacy.venue.address = 'Uyo Township Stadium Area, Uyo, Akwa Ibom, Nigeria';
+      legacy.venue.address =
+        'Uyo Township Stadium Area, Uyo, Akwa Ibom, Nigeria';
       legacy.venue.latitude = 5.0379;
       legacy.venue.longitude = 7.9128;
       await this.venueRepository.save(legacy.venue);
@@ -104,7 +105,8 @@ export class SeedService implements OnModuleInit {
 
     if (legacy.organization) {
       legacy.organization.name = 'Akwa Ibom Xmas Village Committee';
-      legacy.organization.description = 'Organizer of the Akwa Ibom Xmas Village';
+      legacy.organization.description =
+        'Organizer of the Akwa Ibom Xmas Village';
       await this.orgRepository.save(legacy.organization);
     }
 
@@ -120,7 +122,9 @@ export class SeedService implements OnModuleInit {
       }
     }
 
-    this.logger.log('Migrated legacy event branding to Akwa Ibom Xmas Village 2026');
+    this.logger.log(
+      'Migrated legacy event branding to Akwa Ibom Xmas Village 2026',
+    );
   }
 
   private async ensureDemoVendorAccount() {
@@ -169,7 +173,8 @@ export class SeedService implements OnModuleInit {
     mamaEkaette.boothNumber = mamaEkaette.boothNumber ?? 'F-12';
     mamaEkaette.zone = mamaEkaette.zone ?? 'Food Court';
     mamaEkaette.logoUrl =
-      mamaEkaette.logoUrl ?? 'https://cdn.fvl.io/vendors/mama-ekaette-kitchen.png';
+      mamaEkaette.logoUrl ??
+      'https://cdn.fvl.io/vendors/mama-ekaette-kitchen.png';
     await this.vendorRepository.save(mamaEkaette);
 
     const desiredProducts = [
@@ -211,7 +216,8 @@ export class SeedService implements OnModuleInit {
       },
       {
         name: 'Festive Christmas Platter',
-        description: 'Family platter with jollof, fried rice, chicken, and salad',
+        description:
+          'Family platter with jollof, fried rice, chicken, and salad',
         price: 12000,
         maxPrice: null as number | null,
         imageUrl: 'https://cdn.fvl.io/vendors/mama-ekaette-platter.jpg',
@@ -291,7 +297,8 @@ export class SeedService implements OnModuleInit {
         vendorId: mamaEkaette.id,
         userId: demo.id,
         rating: 5,
-        comment: 'Best jollof at the village! Friendly service and generous portions.',
+        comment:
+          'Best jollof at the village! Friendly service and generous portions.',
         status: 'approved',
       }),
       this.reviewRepository.create({
@@ -425,7 +432,8 @@ export class SeedService implements OnModuleInit {
         endDate: '2026-12-31',
         timezone: 'Africa/Lagos',
         status: EventStatus.ACTIVE,
-        coverImageUrl: 'https://cdn.fvl.io/events/akwa-ibom-xmas-village-2026-cover.jpg',
+        coverImageUrl:
+          'https://cdn.fvl.io/events/akwa-ibom-xmas-village-2026-cover.jpg',
       }),
     );
 
@@ -435,12 +443,13 @@ export class SeedService implements OnModuleInit {
         venueId: venue.id,
         name: 'Lagos Food & Culture Fest 2027',
         description:
-          'A preview of next season\'s food and culture festival at the same venue.',
+          "A preview of next season's food and culture festival at the same venue.",
         startDate: '2027-02-01',
         endDate: '2027-02-14',
         timezone: 'Africa/Lagos',
         status: EventStatus.PUBLISHED,
-        coverImageUrl: 'https://cdn.fvl.io/events/lagos-food-culture-fest-2027-cover.jpg',
+        coverImageUrl:
+          'https://cdn.fvl.io/events/lagos-food-culture-fest-2027-cover.jpg',
       }),
     );
 
@@ -449,7 +458,8 @@ export class SeedService implements OnModuleInit {
         eventId: event.id,
         centerLat: 5.0379,
         centerLng: 7.9128,
-        floorPlanUrl: 'https://cdn.fvl.io/maps/akwa-ibom-xmas-village-2026-floorplan.png',
+        floorPlanUrl:
+          'https://cdn.fvl.io/maps/akwa-ibom-xmas-village-2026-floorplan.png',
         tileUrlTemplate:
           'https://cdn.fvl.io/maps/akwa-ibom-xmas-village-2026/{z}/{x}/{y}.png',
       }),
@@ -484,21 +494,156 @@ export class SeedService implements OnModuleInit {
       categories.find((c) => c.name === name)?.id ?? categories[0].id;
 
     const vendorDefs = [
-      { name: 'Mama Ekaette Kitchen', slug: 'mama-ekaette-kitchen', category: 'Food', booth: 'F-12', zone: 'Food Court', lat: 5.0383, lng: 7.9131, views: 120 },
-      { name: 'Adunni Fashion House', slug: 'adunni-fashion', category: 'Fashion', booth: 'A-05', zone: 'Hall A', lat: 5.0375, lng: 7.9124, views: 85 },
-      { name: 'TechHub Nigeria', slug: 'techhub-nigeria', category: 'Electronics', booth: 'E-22', zone: 'Tech Pavilion', lat: 5.0385, lng: 7.9136, views: 95 },
-      { name: 'Kano Crafts Collective', slug: 'kano-crafts', category: 'Crafts', booth: 'C-08', zone: 'Craft Village', lat: 5.0373, lng: 7.9126, views: 60 },
-      { name: 'GreenHarvest Farms', slug: 'greenharvest-farms', category: 'Agriculture', booth: 'AG-03', zone: 'Agri Zone', lat: 5.0377, lng: 7.9121, views: 45 },
-      { name: 'Wellness Plus Clinic', slug: 'wellness-plus', category: 'Health', booth: 'H-15', zone: 'Health Row', lat: 5.0370, lng: 7.9134, views: 30 },
-      { name: 'Uyo Art Gallery', slug: 'uyo-art-gallery', category: 'Art', booth: 'AR-07', zone: 'Art Walk', lat: 5.0381, lng: 7.9130, views: 55 },
-      { name: 'FixIt Services', slug: 'fixit-services', category: 'Services', booth: 'S-11', zone: 'Services Hub', lat: 5.0367, lng: 7.9138, views: 25 },
-      { name: 'Spice Route Kitchen', slug: 'spice-route', category: 'Food', booth: 'F-14', zone: 'Food Court', lat: 5.0384, lng: 7.9129, views: 70 },
-      { name: 'Ankara Dreams', slug: 'ankara-dreams', category: 'Fashion', booth: 'A-12', zone: 'Hall A', lat: 5.0376, lng: 7.9122, views: 65 },
-      { name: 'PowerCell Electronics', slug: 'powercell', category: 'Electronics', booth: 'E-18', zone: 'Tech Pavilion', lat: 5.0387, lng: 7.9134, views: 80 },
-      { name: 'Bead & Wire Studio', slug: 'bead-wire-studio', category: 'Crafts', booth: 'C-15', zone: 'Craft Village', lat: 5.0371, lng: 7.9128, views: 40 },
-      { name: 'Organic Roots', slug: 'organic-roots', category: 'Agriculture', booth: 'AG-09', zone: 'Agri Zone', lat: 5.0379, lng: 7.9116, views: 35 },
-      { name: 'Herbal Life Nigeria', slug: 'herbal-life-ng', category: 'Health', booth: 'H-08', zone: 'Health Row', lat: 5.0373, lng: 7.9136, views: 28 },
-      { name: 'Canvas & Clay', slug: 'canvas-clay', category: 'Art', booth: 'AR-12', zone: 'Art Walk', lat: 5.0382, lng: 7.9120, views: 50 },
+      {
+        name: 'Mama Ekaette Kitchen',
+        slug: 'mama-ekaette-kitchen',
+        category: 'Food',
+        booth: 'F-12',
+        zone: 'Food Court',
+        lat: 5.0383,
+        lng: 7.9131,
+        views: 120,
+      },
+      {
+        name: 'Adunni Fashion House',
+        slug: 'adunni-fashion',
+        category: 'Fashion',
+        booth: 'A-05',
+        zone: 'Hall A',
+        lat: 5.0375,
+        lng: 7.9124,
+        views: 85,
+      },
+      {
+        name: 'TechHub Nigeria',
+        slug: 'techhub-nigeria',
+        category: 'Electronics',
+        booth: 'E-22',
+        zone: 'Tech Pavilion',
+        lat: 5.0385,
+        lng: 7.9136,
+        views: 95,
+      },
+      {
+        name: 'Kano Crafts Collective',
+        slug: 'kano-crafts',
+        category: 'Crafts',
+        booth: 'C-08',
+        zone: 'Craft Village',
+        lat: 5.0373,
+        lng: 7.9126,
+        views: 60,
+      },
+      {
+        name: 'GreenHarvest Farms',
+        slug: 'greenharvest-farms',
+        category: 'Agriculture',
+        booth: 'AG-03',
+        zone: 'Agri Zone',
+        lat: 5.0377,
+        lng: 7.9121,
+        views: 45,
+      },
+      {
+        name: 'Wellness Plus Clinic',
+        slug: 'wellness-plus',
+        category: 'Health',
+        booth: 'H-15',
+        zone: 'Health Row',
+        lat: 5.037,
+        lng: 7.9134,
+        views: 30,
+      },
+      {
+        name: 'Uyo Art Gallery',
+        slug: 'uyo-art-gallery',
+        category: 'Art',
+        booth: 'AR-07',
+        zone: 'Art Walk',
+        lat: 5.0381,
+        lng: 7.913,
+        views: 55,
+      },
+      {
+        name: 'FixIt Services',
+        slug: 'fixit-services',
+        category: 'Services',
+        booth: 'S-11',
+        zone: 'Services Hub',
+        lat: 5.0367,
+        lng: 7.9138,
+        views: 25,
+      },
+      {
+        name: 'Spice Route Kitchen',
+        slug: 'spice-route',
+        category: 'Food',
+        booth: 'F-14',
+        zone: 'Food Court',
+        lat: 5.0384,
+        lng: 7.9129,
+        views: 70,
+      },
+      {
+        name: 'Ankara Dreams',
+        slug: 'ankara-dreams',
+        category: 'Fashion',
+        booth: 'A-12',
+        zone: 'Hall A',
+        lat: 5.0376,
+        lng: 7.9122,
+        views: 65,
+      },
+      {
+        name: 'PowerCell Electronics',
+        slug: 'powercell',
+        category: 'Electronics',
+        booth: 'E-18',
+        zone: 'Tech Pavilion',
+        lat: 5.0387,
+        lng: 7.9134,
+        views: 80,
+      },
+      {
+        name: 'Bead & Wire Studio',
+        slug: 'bead-wire-studio',
+        category: 'Crafts',
+        booth: 'C-15',
+        zone: 'Craft Village',
+        lat: 5.0371,
+        lng: 7.9128,
+        views: 40,
+      },
+      {
+        name: 'Organic Roots',
+        slug: 'organic-roots',
+        category: 'Agriculture',
+        booth: 'AG-09',
+        zone: 'Agri Zone',
+        lat: 5.0379,
+        lng: 7.9116,
+        views: 35,
+      },
+      {
+        name: 'Herbal Life Nigeria',
+        slug: 'herbal-life-ng',
+        category: 'Health',
+        booth: 'H-08',
+        zone: 'Health Row',
+        lat: 5.0373,
+        lng: 7.9136,
+        views: 28,
+      },
+      {
+        name: 'Canvas & Clay',
+        slug: 'canvas-clay',
+        category: 'Art',
+        booth: 'AR-12',
+        zone: 'Art Walk',
+        lat: 5.0382,
+        lng: 7.912,
+        views: 50,
+      },
     ];
 
     const qrSecret = this.configService.get<string>('qr.hmacSecret') ?? '';
@@ -582,7 +727,8 @@ export class SeedService implements OnModuleInit {
       this.productRepository.create({
         vendorId: mamaEkaette.id,
         name: 'Festive Christmas Platter',
-        description: 'Family platter with jollof, fried rice, chicken, and salad',
+        description:
+          'Family platter with jollof, fried rice, chicken, and salad',
         price: 12000,
         currency: 'NGN',
         imageUrl: 'https://cdn.fvl.io/vendors/mama-ekaette-platter.jpg',
@@ -664,7 +810,8 @@ export class SeedService implements OnModuleInit {
         start: new Date('2026-12-10T14:00:00'),
         end: new Date('2026-12-10T16:00:00'),
         loc: 'Hall A',
-        description: 'Fashion runway featuring local designers and Ankara styles.',
+        description:
+          'Fashion runway featuring local designers and Ankara styles.',
       },
       {
         title: 'Christmas Carols & Lights',
@@ -812,7 +959,8 @@ export class SeedService implements OnModuleInit {
         vendorId: mamaEkaette.id,
         userId: demo.id,
         rating: 5,
-        comment: 'Best jollof at the village! Friendly service and generous portions.',
+        comment:
+          'Best jollof at the village! Friendly service and generous portions.',
         status: 'approved',
       }),
       this.reviewRepository.create({

@@ -15,7 +15,14 @@ import { UserPreference } from '../entities/user-preference.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Vendor, Event, RefreshToken, OtpCode, UserPreference]),
+    TypeOrmModule.forFeature([
+      User,
+      Vendor,
+      Event,
+      RefreshToken,
+      OtpCode,
+      UserPreference,
+    ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
