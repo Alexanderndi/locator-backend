@@ -13,13 +13,15 @@ export class PerformanceLoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const http = context.switchToHttp();
-    const request = http.getRequest<{ method?: string; route?: { path?: string }; url?: string }>();
+    const request = http.getRequest<{
+      method?: string;
+      route?: { path?: string };
+      url?: string;
+    }>();
     const response = http.getResponse<{ statusCode?: number }>();
     const startedAt = Date.now();
     const route =
-      request.route?.path ??
-      request.url?.split('?')[0] ??
-      'unknown';
+      request.route?.path ?? request.url?.split('?')[0] ?? 'unknown';
 
     return next.handle().pipe(
       tap({

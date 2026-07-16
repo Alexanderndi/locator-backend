@@ -30,8 +30,10 @@ Recommended Vercel project settings:
 
 - Framework preset: Other
 - Install command: `npm install`
-- Build command: `npm run build`
+- Build command: `npm run ci:check`
 - Output directory: leave empty
+
+The repository also includes a GitHub Actions workflow that runs the same CI gate on pushes to `main`/`master` and on pull requests.
 
 Set these environment variables in Vercel:
 

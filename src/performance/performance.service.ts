@@ -84,12 +84,9 @@ export class PerformanceService {
     ]);
 
     const crashes = performanceEvents.filter((e) => e.kind === 'crash');
-    const sessions = sessionEvents.filter(
-      (e) => e.type === 'app_open',
-    ).length;
+    const sessions = sessionEvents.filter((e) => e.type === 'app_open').length;
     const crashRate = sessions > 0 ? crashes.length / sessions : 0;
-    const crashFreeSessionRate =
-      sessions > 0 ? 1 - crashRate : 1;
+    const crashFreeSessionRate = sessions > 0 ? 1 - crashRate : 1;
 
     const clientApiLatencies = performanceEvents
       .filter((e) => e.kind === 'api_latency' && e.durationMs != null)
@@ -117,7 +114,8 @@ export class PerformanceService {
       sessionCount: sessions,
       crashRate: Math.round(crashRate * 10000) / 10000,
       crashFreeSessionRate: Math.round(crashFreeSessionRate * 10000) / 10000,
-      crashRateAlertActive: sessions > 0 && crashRate > CRASH_RATE_ALERT_THRESHOLD,
+      crashRateAlertActive:
+        sessions > 0 && crashRate > CRASH_RATE_ALERT_THRESHOLD,
       crashRateAlertThreshold: CRASH_RATE_ALERT_THRESHOLD,
       apiLatency: this.latencySummary(clientApiLatencies),
       mapLoad: this.latencySummary(mapLoadLatencies),
