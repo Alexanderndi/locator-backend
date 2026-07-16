@@ -24,10 +24,10 @@ export class Promotion {
   @Column({ name: 'discount_percent', type: 'decimal', precision: 5, scale: 2, nullable: true })
   discountPercent: number | null;
 
-  @Column({ name: 'start_date', type: 'datetime', nullable: true })
+  @Column({ name: 'start_date', nullable: true })
   startDate: Date | null;
 
-  @Column({ name: 'end_date', type: 'datetime', nullable: true })
+  @Column({ name: 'end_date', nullable: true })
   endDate: Date | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })

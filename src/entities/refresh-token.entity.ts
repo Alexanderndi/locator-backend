@@ -19,7 +19,7 @@ export class RefreshToken {
   @Column({ type: 'varchar', length: 512 })
   token: string;
 
-  @Column({ name: 'expires_at', type: 'datetime' })
+  @Column({ name: 'expires_at' })
   expiresAt: Date;
 
   @Column({ name: 'is_revoked', type: 'boolean', default: false })

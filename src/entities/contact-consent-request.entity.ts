@@ -34,13 +34,13 @@ export class ContactConsentRequest {
   @Column({ name: 'shared_phone', type: 'varchar', length: 20, nullable: true })
   sharedPhone: string | null;
 
-  @Column({ name: 'requested_at', type: 'datetime' })
+  @Column({ name: 'requested_at' })
   requestedAt: Date;
 
-  @Column({ name: 'responded_at', type: 'datetime', nullable: true })
+  @Column({ name: 'responded_at', nullable: true })
   respondedAt: Date | null;
 
-  @Column({ name: 'expires_at', type: 'datetime', nullable: true })
+  @Column({ name: 'expires_at', nullable: true })
   expiresAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })

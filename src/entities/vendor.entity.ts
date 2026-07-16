@@ -86,7 +86,7 @@ export class Vendor {
   @Column({ name: 'deactivated_by_id', type: 'uuid', nullable: true })
   deactivatedById: string | null;
 
-  @Column({ name: 'deactivated_at', type: 'datetime', nullable: true })
+  @Column({ name: 'deactivated_at', nullable: true })
   deactivatedAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })

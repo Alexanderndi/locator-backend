@@ -21,10 +21,10 @@ export class ScheduleItem {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ name: 'start_time', type: 'datetime' })
+  @Column({ name: 'start_time' })
   startTime: Date;
 
-  @Column({ name: 'end_time', type: 'datetime', nullable: true })
+  @Column({ name: 'end_time', nullable: true })
   endTime: Date | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })

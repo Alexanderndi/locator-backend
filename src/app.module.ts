@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import configuration from './config/configuration';
-import { ALL_ENTITIES } from './entities';
+import { createTypeOrmOptions } from './database/typeorm-options';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -23,13 +23,7 @@ import { PerformanceModule } from './performance/performance.module';
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'better-sqlite3' as const,
-        database: configService.get<string>('database.path') ?? 'fvl.db',
-        entities: ALL_ENTITIES,
-        synchronize: true,
-      }),
+      useFactory: createTypeOrmOptions,
     }),
     AuthModule,
     UsersModule,

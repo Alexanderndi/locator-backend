@@ -1,9 +1,11 @@
 export default () => ({
   port: parseInt(process.env.PORT ?? '3000', 10),
   database: {
+    url: process.env.DATABASE_URL ?? '',
     path:
       process.env.DATABASE_PATH ??
       (process.env.VERCEL ? '/tmp/fvl.db' : 'fvl.db'),
+    synchronize: process.env.DB_SYNCHRONIZE ?? 'true',
   },
   jwt: {
     secret: process.env.JWT_SECRET ?? 'fvl-dev-jwt-secret-change-in-production',

@@ -24,7 +24,7 @@ export class VendorReminder {
   @Column({ name: 'event_id', type: 'uuid' })
   eventId: string;
 
-  @Column({ name: 'scheduled_at', type: 'datetime' })
+  @Column({ name: 'scheduled_at' })
   scheduledAt: Date;
 
   @Column({ type: 'text', nullable: true })
