@@ -29,6 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate PR source branch
+        if: github.event_name == 'pull_request'
+        run: |
+          branch="${{ github.head_ref }}"
+          if [[ ! "$branch" =~ ^(feature|bugfix|fix|hotfix|chore|docs|test|refactor|release)/ ]]; then
+            echo "Pull requests must come from a named work branch."
+            echo "Use a branch like feature/my-change, bugfix/my-fix, hotfix/my-patch, chore/my-task, docs/my-docs, test/my-tests, refactor/my-refactor, or release/my-release."
+            echo "Current branch: $branch"
+            exit 1
+          fi
+
       - name: Lint
         run: npm run lint:check
 
@@ -79,3 +90,41 @@ jobs:
                 body,
               });
             }
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: checks
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pull Vercel environment
+        run: npx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Vercel artifact
+        run: npx vercel@latest build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy Vercel artifact
+        run: npx vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
