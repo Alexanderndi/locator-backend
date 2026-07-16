@@ -82,10 +82,7 @@ export class MapsService {
     const distance = haversineDistanceMeters(fromLat, fromLng, toLat, toLng);
     const walkingSpeedMps = 1.4;
     const durationSeconds = Math.round(distance / walkingSpeedMps);
-    const pointCount = Math.min(
-      24,
-      Math.max(5, Math.floor(distance / 20)),
-    );
+    const pointCount = Math.min(24, Math.max(5, Math.floor(distance / 20)));
     const points = generateRoutePoints(
       fromLat,
       fromLng,

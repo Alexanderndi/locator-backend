@@ -24,7 +24,13 @@ export class Product {
   @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
   price: number | null;
 
-  @Column({ name: 'max_price', type: 'decimal', precision: 12, scale: 2, nullable: true })
+  @Column({
+    name: 'max_price',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   maxPrice: number | null;
 
   @Column({ type: 'varchar', length: 3, default: 'NGN' })

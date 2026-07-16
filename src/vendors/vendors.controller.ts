@@ -40,11 +40,7 @@ export class VendorsController {
     @Param('eventId') eventId: string,
     @Query() query: EventVendorsQueryDto,
   ) {
-    return this.vendorsService.listByEvent(
-      eventId,
-      query.page,
-      query.pageSize,
-    );
+    return this.vendorsService.listByEvent(eventId, query.page, query.pageSize);
   }
 
   @Get('events/:eventId/vendors/search')
@@ -63,10 +59,7 @@ export class VendorsController {
   }
 
   @Get('events/:eventId/vendors/nearby')
-  nearby(
-    @Param('eventId') eventId: string,
-    @Query() query: NearbyQueryDto,
-  ) {
+  nearby(@Param('eventId') eventId: string, @Query() query: NearbyQueryDto) {
     return this.vendorsService.nearby(
       eventId,
       query.lat,
@@ -77,20 +70,14 @@ export class VendorsController {
 
   @Get('events/:eventId/vendors/recommended')
   @UseGuards(OptionalJwtAuthGuard)
-  recommended(
-    @Param('eventId') eventId: string,
-    @CurrentUser() user?: User,
-  ) {
+  recommended(@Param('eventId') eventId: string, @CurrentUser() user?: User) {
     return this.vendorsService.recommended(eventId, user ?? undefined);
   }
 
   @Get('vendors/me/products')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.VENDOR)
-  listMyProducts(
-    @CurrentUser() user: User,
-    @Query() query: ProductsQueryDto,
-  ) {
+  listMyProducts(@CurrentUser() user: User, @Query() query: ProductsQueryDto) {
     return this.vendorsService.listMyCatalogue(
       user,
       query.page,

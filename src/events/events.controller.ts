@@ -7,10 +7,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get()
-  findAll(
-    @Query('status') status?: EventStatus,
-    @Query('near') near?: string,
-  ) {
+  findAll(@Query('status') status?: EventStatus, @Query('near') near?: string) {
     return this.eventsService.findAll(status, near);
   }
 

@@ -10,13 +10,7 @@ import { Vendor } from '../entities/vendor.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Event,
-      VenueMap,
-      ScheduleItem,
-      Category,
-      Vendor,
-    ]),
+    TypeOrmModule.forFeature([Event, VenueMap, ScheduleItem, Category, Vendor]),
   ],
   controllers: [EventsController],
   providers: [EventsService],

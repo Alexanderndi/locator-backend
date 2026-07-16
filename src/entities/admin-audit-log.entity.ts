@@ -28,7 +28,12 @@ export class AdminAuditLog {
   @Column({ name: 'user_id', type: 'uuid', nullable: true })
   userId: string | null;
 
-  @Column({ name: 'user_display_name', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'user_display_name',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   userDisplayName: string | null;
 
   @Column({ type: 'simple-json', nullable: true })

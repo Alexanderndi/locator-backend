@@ -180,11 +180,7 @@ export class AdminService {
 
   async createVendor(eventId: string, dto: CreateVendorDto, user: User) {
     await this.assertEventAccess(user, eventId);
-    await assertUniqueBooth(
-      this.vendorRepository,
-      eventId,
-      dto.boothNumber,
-    );
+    await assertUniqueBooth(this.vendorRepository, eventId, dto.boothNumber);
     const vendor = await this.persistVendor(eventId, dto, user);
     await this.recordAudit({
       eventId,
@@ -198,9 +194,7 @@ export class AdminService {
         longitude: Number(vendor.longitude),
       },
     });
-    return this.formatAdminVendor(
-      await this.getVendorWithCategory(vendor.id),
-    );
+    return this.formatAdminVendor(await this.getVendorWithCategory(vendor.id));
   }
 
   async updateVendor(
@@ -290,7 +284,7 @@ export class AdminService {
     for (let index = 0; index < dto.vendors.length; index++) {
       const row = dto.vendors[index];
       const rowNumber = index + 1;
-      const normalized = await this.normalizeBulkRow(row, categoryByName);
+      const normalized = this.normalizeBulkRow(row, categoryByName);
       const instance = plainToInstance(CreateVendorDto, normalized);
       const validationErrors = await validate(instance);
 
@@ -330,7 +324,9 @@ export class AdminService {
       }
     }
 
-    const imported = results.filter((result) => result.status === 'success').length;
+    const imported = results.filter(
+      (result) => result.status === 'success',
+    ).length;
     return {
       total: dto.vendors.length,
       imported,
@@ -375,7 +371,9 @@ export class AdminService {
 
     const printable = vendors.filter((vendor) => vendor.qrCodePayload);
     if (!printable.length) {
-      throw new NotFoundException('No active vendors available for QR printing');
+      throw new NotFoundException(
+        'No active vendors available for QR printing',
+      );
     }
 
     const buffer = await buildVendorQrPdf(
@@ -395,11 +393,7 @@ export class AdminService {
     };
   }
 
-  async buildSingleVendorQrPdf(
-    eventId: string,
-    vendorId: string,
-    user: User,
-  ) {
+  async buildSingleVendorQrPdf(eventId: string, vendorId: string, user: User) {
     const event = await this.assertEventAccess(user, eventId);
     const vendor = await this.getEventVendor(eventId, vendorId);
 
@@ -444,7 +438,8 @@ export class AdminService {
         updatedById: user.id,
       }),
     );
-    const push = await this.pushDeliveryService.dispatchAnnouncement(announcement);
+    const push =
+      await this.pushDeliveryService.dispatchAnnouncement(announcement);
     await this.recordAudit({
       eventId,
       entityId: announcement.id,
@@ -474,7 +469,10 @@ export class AdminService {
     user: User,
   ) {
     await this.assertEventAccess(user, eventId);
-    const announcement = await this.getEventAnnouncement(eventId, announcementId);
+    const announcement = await this.getEventAnnouncement(
+      eventId,
+      announcementId,
+    );
 
     Object.assign(announcement, {
       ...(dto.title !== undefined && { title: dto.title }),
@@ -504,7 +502,10 @@ export class AdminService {
     user: User,
   ) {
     await this.assertEventAccess(user, eventId);
-    const announcement = await this.getEventAnnouncement(eventId, announcementId);
+    const announcement = await this.getEventAnnouncement(
+      eventId,
+      announcementId,
+    );
     announcement.deletedAt = new Date();
     announcement.deletedById = user.id;
     announcement.updatedById = user.id;
@@ -530,13 +531,9 @@ export class AdminService {
     return announcement;
   }
 
-  private formatAdminAnnouncement(
-    announcement: Announcement,
-    push?: unknown,
-  ) {
+  private formatAdminAnnouncement(announcement: Announcement, push?: unknown) {
     const now = new Date();
-    const expired =
-      !!announcement.expiresAt && announcement.expiresAt <= now;
+    const expired = !!announcement.expiresAt && announcement.expiresAt <= now;
     return {
       id: announcement.id,
       eventId: announcement.eventId,
@@ -551,11 +548,7 @@ export class AdminService {
     };
   }
 
-  async adminDashboard(
-    eventId: string,
-    user: User,
-    compareEventId?: string,
-  ) {
+  async adminDashboard(eventId: string, user: User, compareEventId?: string) {
     await this.assertEventAccess(user, eventId);
     if (compareEventId) {
       await this.assertEventAccess(user, compareEventId);
@@ -688,7 +681,7 @@ export class AdminService {
     return vendor;
   }
 
-  private async normalizeBulkRow(
+  private normalizeBulkRow(
     row: BulkImportVendorRowDto,
     categoryByName: Map<string, string>,
   ) {
@@ -719,10 +712,7 @@ export class AdminService {
     const event = await this.eventsService.ensureEvent(eventId);
     if (user.role === UserRole.ADMIN) return event;
     if (user.role === UserRole.ORGANIZER) {
-      if (
-        user.organizationId &&
-        user.organizationId === event.organizationId
-      ) {
+      if (user.organizationId && user.organizationId === event.organizationId) {
         return event;
       }
       throw new ForbiddenException('Not authorized for this event');
