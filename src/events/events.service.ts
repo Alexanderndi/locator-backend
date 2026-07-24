@@ -129,7 +129,7 @@ export class EventsService {
       .select('vendor.category_id', 'categoryId')
       .addSelect('COUNT(*)', 'count')
       .where('vendor.event_id = :eventId', { eventId })
-      .andWhere('vendor.is_active = 1')
+      .andWhere('vendor.is_active = :isActive', { isActive: true })
       .groupBy('vendor.category_id')
       .getRawMany<{ categoryId: string; count: string }>();
 
