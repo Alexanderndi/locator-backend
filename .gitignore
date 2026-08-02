@@ -5,3 +5,5 @@ uploads/
 *.db-*
 .env
 coverage/
+.vercel
+.env*
