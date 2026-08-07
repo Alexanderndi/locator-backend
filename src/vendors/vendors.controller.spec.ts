@@ -103,11 +103,7 @@ describe('VendorsController', () => {
     expect(
       await controller.getProducts('vendor-1', { page: 1, pageSize: 20 }),
     ).toEqual({ data: [], meta: {} });
-    expect(vendorsService.getProducts).toHaveBeenCalledWith(
-      'vendor-1',
-      1,
-      20,
-    );
+    expect(vendorsService.getProducts).toHaveBeenCalledWith('vendor-1', 1, 20);
   });
 
   it('delegates GET /vendors/:vendorId/promotions to getPromotions', async () => {
@@ -125,11 +121,7 @@ describe('VendorsController', () => {
     });
 
     expect(
-      await controller.getReviews(
-        'vendor-1',
-        { page: 1, pageSize: 10 },
-        user,
-      ),
+      await controller.getReviews('vendor-1', { page: 1, pageSize: 10 }, user),
     ).toEqual({ data: [], meta: {}, userReview: null });
     expect(vendorsService.getReviews).toHaveBeenCalledWith(
       'vendor-1',

@@ -16,7 +16,10 @@ describe('MapsController', () => {
 
   it('delegates POST /events/:eventId/routes to computeRoute', () => {
     const dto = { lat: 4.95, lng: 8.32, toVendorId: 'vendor-1' };
-    mapsService.computeRoute.mockReturnValue({ distance: 100, reachable: true });
+    mapsService.computeRoute.mockReturnValue({
+      distance: 100,
+      reachable: true,
+    });
 
     expect(controller.computeRoute('event-1', dto)).toEqual({
       distance: 100,

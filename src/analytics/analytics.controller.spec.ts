@@ -64,10 +64,9 @@ describe('AnalyticsController', () => {
   });
 
   it('writes CSV export for GET /analytics/search/:eventId/export', async () => {
-    const res = {
-      setHeader: jest.fn(),
-      send: jest.fn(),
-    } as unknown as Response;
+    const setHeader = jest.fn();
+    const send = jest.fn();
+    const res = { setHeader, send } as unknown as Response;
     analyticsService.searchAnalytics.mockResolvedValue({ topSearches: [] });
     analyticsService.searchAnalyticsCsv.mockReturnValue('query,count\n');
 
@@ -78,15 +77,15 @@ describe('AnalyticsController', () => {
       undefined,
       undefined,
     );
-    expect(res.setHeader).toHaveBeenCalledWith(
+    expect(setHeader).toHaveBeenCalledWith(
       'Content-Type',
       'text/csv; charset=utf-8',
     );
-    expect(res.setHeader).toHaveBeenCalledWith(
+    expect(setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
       'attachment; filename="search-analytics-event-1.csv"',
     );
-    expect(res.send).toHaveBeenCalledWith('query,count\n');
+    expect(send).toHaveBeenCalledWith('query,count\n');
   });
 
   it('delegates GET /analytics/dashboard/:eventId to dashboard', () => {

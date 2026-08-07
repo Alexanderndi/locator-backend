@@ -45,8 +45,10 @@ describe('AdminController', () => {
   it('delegates GET /admin/customers with page/pageSize/limit parsing', () => {
     adminService.listCustomers.mockReturnValue({ data: [], meta: {} });
 
-    controller.listCustomers('2', '20', undefined);
-
+    expect(controller.listCustomers('2', '20', undefined)).toEqual({
+      data: [],
+      meta: {},
+    });
     expect(adminService.listCustomers).toHaveBeenCalledWith(2, 20);
   });
 
@@ -60,8 +62,9 @@ describe('AdminController', () => {
   it('delegates GET /admin/events/:eventId/vendors/audit-log with limit', () => {
     adminService.listVendorAuditLogs.mockReturnValue({ data: [] });
 
-    controller.listVendorAuditLogs('event-1', user, '25');
-
+    expect(controller.listVendorAuditLogs('event-1', user, '25')).toEqual({
+      data: [],
+    });
     expect(adminService.listVendorAuditLogs).toHaveBeenCalledWith(
       'event-1',
       user,
@@ -112,7 +115,9 @@ describe('AdminController', () => {
   });
 
   it('delegates DELETE /admin/events/:eventId/vendors/:vendorId to deleteVendor', () => {
-    adminService.deleteVendor.mockReturnValue({ message: 'Vendor deactivated' });
+    adminService.deleteVendor.mockReturnValue({
+      message: 'Vendor deactivated',
+    });
 
     expect(controller.deleteVendor('event-1', 'vendor-1', user)).toEqual({
       message: 'Vendor deactivated',
