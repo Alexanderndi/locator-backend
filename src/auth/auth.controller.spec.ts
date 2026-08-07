@@ -42,6 +42,29 @@ describe('AuthController', () => {
     expect(controller.login(loginDto)).toEqual({ accessToken: 'token' });
   });
 
+  it('delegates vendor registration to the service', () => {
+    const registerVendorDto = {
+      email: 'vendor@example.com',
+      password: 'TestPass1',
+      displayName: 'Vendor',
+      eventId: 'event-1',
+      businessName: 'Mama Kitchen',
+      latitude: 4.95,
+      longitude: 8.32,
+    };
+
+    authService.registerVendor.mockReturnValue({
+      user: { role: 'vendor' },
+      vendor: { id: 'vendor-1' },
+    });
+
+    expect(controller.registerVendor(registerVendorDto)).toEqual({
+      user: { role: 'vendor' },
+      vendor: { id: 'vendor-1' },
+    });
+    expect(authService.registerVendor).toHaveBeenCalledWith(registerVendorDto);
+  });
+
   it('passes token and OTP commands to the service', () => {
     authService.refresh.mockReturnValue({ accessToken: 'new-token' });
     authService.logout.mockReturnValue({ message: 'Logged out successfully' });
