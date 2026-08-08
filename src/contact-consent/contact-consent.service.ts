@@ -166,6 +166,17 @@ export class ContactConsentService {
     return this.formatRequest(request, 'visitor', true);
   }
 
+  async findAcceptedConsent(userId: string, vendorId: string, eventId: string) {
+    return this.consentRepository.findOne({
+      where: {
+        userId,
+        vendorId,
+        eventId,
+        status: ContactConsentStatus.ACCEPTED,
+      },
+    });
+  }
+
   async getInboxItems(userId: string) {
     await this.expireStaleRequests(userId);
 

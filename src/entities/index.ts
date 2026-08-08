@@ -20,6 +20,10 @@ import { VendorReminder } from './vendor-reminder.entity';
 import { ContactConsentRequest } from './contact-consent-request.entity';
 import { PerformanceEvent } from './performance-event.entity';
 import { AdminAuditLog } from './admin-audit-log.entity';
+import { Conversation } from './conversation.entity';
+import { Message } from './message.entity';
+import { ConversationRead } from './conversation-read.entity';
+import { ChatReport } from './chat-report.entity';
 
 export {
   User,
@@ -44,6 +48,10 @@ export {
   ContactConsentRequest,
   PerformanceEvent,
   AdminAuditLog,
+  Conversation,
+  Message,
+  ConversationRead,
+  ChatReport,
 };
 
 export const ALL_ENTITIES = [
@@ -69,4 +77,8 @@ export const ALL_ENTITIES = [
   ContactConsentRequest,
   PerformanceEvent,
   AdminAuditLog,
+  Conversation,
+  Message,
+  ConversationRead,
+  ChatReport,
 ];

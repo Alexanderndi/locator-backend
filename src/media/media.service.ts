@@ -29,9 +29,11 @@ export class MediaService {
 
   constructor(private readonly configService: ConfigService) {
     this.uploadRoot = getUploadRoot();
-    const catalogueDir = join(this.uploadRoot, 'catalogue');
-    if (!existsSync(catalogueDir)) {
-      mkdirSync(catalogueDir, { recursive: true });
+    for (const folder of ['catalogue', 'chat']) {
+      const dir = join(this.uploadRoot, folder);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
     }
   }
 
@@ -49,6 +51,20 @@ export class MediaService {
     imageUrl: string;
     mimeType: string;
   } {
+    return this.saveImage(file, 'catalogue');
+  }
+
+  saveChatImage(file: Express.Multer.File): {
+    imageUrl: string;
+    mimeType: string;
+  } {
+    return this.saveImage(file, 'chat');
+  }
+
+  private saveImage(
+    file: Express.Multer.File,
+    folder: 'catalogue' | 'chat',
+  ): { imageUrl: string; mimeType: string } {
     if (!file?.buffer?.length) {
       throw new BadRequestException('Image file is required');
     }
@@ -58,20 +74,28 @@ export class MediaService {
       EXT_BY_MIME[mimeType] ??
       (extname(file.originalname || '').toLowerCase() || '.jpg');
     const filename = `${randomUUID()}${ext}`;
-    const absolutePath = join(this.uploadRoot, 'catalogue', filename);
+    const absolutePath = join(this.uploadRoot, folder, filename);
     writeFileSync(absolutePath, file.buffer);
 
     return {
-      imageUrl: `/media/catalogue/${filename}`,
+      imageUrl: `/media/${folder}/${filename}`,
       mimeType,
     };
   }
 
   deleteCatalogueImage(imageUrl?: string | null) {
-    if (!imageUrl || !imageUrl.startsWith('/media/catalogue/')) return;
-    const filename = imageUrl.replace('/media/catalogue/', '');
+    this.deleteImage(imageUrl, 'catalogue');
+  }
+
+  deleteChatImage(imageUrl?: string | null) {
+    this.deleteImage(imageUrl, 'chat');
+  }
+
+  private deleteImage(imageUrl: string | null | undefined, folder: string) {
+    if (!imageUrl || !imageUrl.startsWith(`/media/${folder}/`)) return;
+    const filename = imageUrl.replace(`/media/${folder}/`, '');
     if (!filename || filename.includes('..') || filename.includes('/')) return;
-    const absolutePath = join(this.uploadRoot, 'catalogue', filename);
+    const absolutePath = join(this.uploadRoot, folder, filename);
     if (existsSync(absolutePath)) {
       unlinkSync(absolutePath);
     }
