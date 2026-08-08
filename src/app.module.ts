@@ -17,6 +17,7 @@ import { SeedModule } from './seed/seed.module';
 import { ContactConsentModule } from './contact-consent/contact-consent.module';
 import { VendorPortalModule } from './vendor-portal/vendor-portal.module';
 import { PerformanceModule } from './performance/performance.module';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PerformanceModule } from './performance/performance.module';
     ContactConsentModule,
     VendorPortalModule,
     PerformanceModule,
+    ChatsModule,
   ],
   controllers: [AppController],
 })

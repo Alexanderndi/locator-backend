@@ -46,3 +46,27 @@ export enum AnalyticsEventType {
   LOGIN = 'login',
   CUSTOM = 'custom',
 }
+
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+}
+
+export enum ChatSenderRole {
+  VISITOR = 'visitor',
+  VENDOR = 'vendor',
+}
+
+export enum ChatReportReason {
+  SPAM = 'spam',
+  INAPPROPRIATE = 'inappropriate',
+  HARASSMENT = 'harassment',
+  HATE_SPEECH = 'hate_speech',
+  SCAM = 'scam',
+}
+
+export enum ChatReportStatus {
+  PENDING = 'pending',
+  REVIEWED = 'reviewed',
+  ACTION_TAKEN = 'action_taken',
+}

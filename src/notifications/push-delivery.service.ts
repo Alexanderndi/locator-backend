@@ -103,6 +103,48 @@ export class PushDeliveryService {
     };
   }
 
+  async dispatchChatMessage(params: {
+    userId: string;
+    conversationId: string;
+    vendorName: string;
+    preview: string;
+  }) {
+    const tokens = await this.deviceTokenRepository.find({
+      where: { userId: params.userId },
+    });
+    if (tokens.length === 0) {
+      return { queued: 0, skipped: 0 };
+    }
+
+    const pref = await this.preferenceRepository.findOne({
+      where: { userId: params.userId },
+    });
+    const pushEnabled = pref?.pushEnabled ?? true;
+    let queued = 0;
+    let skipped = 0;
+
+    for (const token of tokens) {
+      if (!pushEnabled) {
+        skipped++;
+        continue;
+      }
+
+      this.logger.log(
+        `Chat push queued: user=${params.userId} conversation=${params.conversationId} ` +
+          `platform=${token.platform}`,
+      );
+      queued++;
+    }
+
+    return {
+      queued,
+      skipped,
+      conversationId: params.conversationId,
+      title: params.vendorName,
+      body: this.summarize(params.preview, 120),
+    };
+  }
+
   private summarize(body: string, maxLength = 120): string {
     const trimmed = body.trim().replace(/\s+/g, ' ');
     if (trimmed.length <= maxLength) return trimmed;
