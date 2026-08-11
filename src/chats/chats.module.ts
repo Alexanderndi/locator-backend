@@ -9,7 +9,6 @@ import { Message } from '../entities/message.entity';
 import { ConversationRead } from '../entities/conversation-read.entity';
 import { ChatReport } from '../entities/chat-report.entity';
 import { User } from '../entities/user.entity';
-import { ContactConsentModule } from '../contact-consent/contact-consent.module';
 import { EventsModule } from '../events/events.module';
 import { VendorsModule } from '../vendors/vendors.module';
 import { MediaModule } from '../media/media.module';
@@ -24,7 +23,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
       ChatReport,
       User,
     ]),
-    ContactConsentModule,
     EventsModule,
     VendorsModule,
     MediaModule,

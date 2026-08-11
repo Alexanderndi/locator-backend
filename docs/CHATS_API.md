@@ -1,12 +1,11 @@
 # Chat API Reference
 
-In-app messaging between **visitors** and **vendors** after **contact consent is accepted**.
+In-app messaging between **visitors** and **vendors**.
 
 | Item | Detail |
 |------|--------|
 | **Base URL** | `/v1` |
 | **Auth** | JWT Bearer token |
-| **Consent gate** | Visitor must have `accepted` contact consent with the vendor for the event |
 | **Real-time** | REST + push notifications (poll or refresh on focus) |
 
 ---
@@ -63,8 +62,6 @@ Start or reopen a conversation.
 ```
 
 **Response (201):** Conversation summary (same shape as list item).
-
-**Errors:** `403` if contact consent not accepted.
 
 ---
 
@@ -359,8 +356,6 @@ Report vendor from chat.
 
 ## Prerequisites flow
 
-1. Vendor sends contact consent request (existing API)
-2. Visitor accepts → `contact_consent_requests.status = accepted`
-3. Visitor calls `POST /users/me/chats` to open thread
-4. Both sides send/receive messages via REST
-5. Push notification queued on new message (via device tokens)
+1. Visitor calls `POST /users/me/chats` to open a thread with a vendor
+2. Both sides send/receive messages via REST
+3. Push notification queued on new message (via device tokens)
