@@ -17,7 +17,6 @@ import {
   MessageType,
   UserRole,
 } from '../common/enums';
-import { ContactConsentService } from '../contact-consent/contact-consent.service';
 import { EventsService } from '../events/events.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { MediaService } from '../media/media.service';
@@ -44,7 +43,6 @@ export class ChatsService {
     private readonly chatReportRepository: Repository<ChatReport>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly contactConsentService: ContactConsentService,
     private readonly eventsService: EventsService,
     private readonly vendorsService: VendorsService,
     private readonly mediaService: MediaService,
@@ -127,17 +125,6 @@ export class ChatsService {
     const vendor = await this.vendorsService.ensureVendor(dto.vendorId);
     if (vendor.eventId !== dto.eventId) {
       throw new BadRequestException('Vendor does not belong to this event');
-    }
-
-    const consent = await this.contactConsentService.findAcceptedConsent(
-      user.id,
-      dto.vendorId,
-      dto.eventId,
-    );
-    if (!consent) {
-      throw new ForbiddenException(
-        'Contact consent must be accepted before chatting with this vendor',
-      );
     }
 
     let conversation = await this.conversationRepository.findOne({

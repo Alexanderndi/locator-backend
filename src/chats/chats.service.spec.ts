@@ -11,7 +11,6 @@ import { Message } from '../entities/message.entity';
 import { ConversationRead } from '../entities/conversation-read.entity';
 import { ChatReport } from '../entities/chat-report.entity';
 import { User } from '../entities/user.entity';
-import { ContactConsentService } from '../contact-consent/contact-consent.service';
 import { EventsService } from '../events/events.service';
 import { VendorsService } from '../vendors/vendors.service';
 import { MediaService } from '../media/media.service';
@@ -115,10 +114,6 @@ describe('ChatsService', () => {
     findOne: jest.fn(),
   };
 
-  const mockContactConsentService = {
-    findAcceptedConsent: jest.fn(),
-  };
-
   const mockEventsService = {
     ensureEvent: jest.fn(),
   };
@@ -181,10 +176,6 @@ describe('ChatsService', () => {
           useValue: mockChatReportRepo,
         },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
-        {
-          provide: ContactConsentService,
-          useValue: mockContactConsentService,
-        },
         { provide: EventsService, useValue: mockEventsService },
         { provide: VendorsService, useValue: mockVendorsService },
         { provide: MediaService, useValue: mockMediaService },
@@ -198,28 +189,10 @@ describe('ChatsService', () => {
     service = module.get(ChatsService);
   });
 
-  it('rejects conversation creation when contact consent is not accepted', async () => {
+  it('creates a new conversation for a visitor', async () => {
     mockVendorsService.ensureVendor.mockResolvedValue({
       id: 'vendor-1',
       eventId: 'event-1',
-    });
-    mockContactConsentService.findAcceptedConsent.mockResolvedValue(null);
-
-    await expect(
-      service.createConversation(visitor, {
-        vendorId: 'vendor-1',
-        eventId: 'event-1',
-      }),
-    ).rejects.toThrow(ForbiddenException);
-  });
-
-  it('creates a new conversation when consent is accepted', async () => {
-    mockVendorsService.ensureVendor.mockResolvedValue({
-      id: 'vendor-1',
-      eventId: 'event-1',
-    });
-    mockContactConsentService.findAcceptedConsent.mockResolvedValue({
-      id: 'consent-1',
     });
     mockConversationRepo.findOne
       .mockResolvedValueOnce(null)
@@ -239,9 +212,6 @@ describe('ChatsService', () => {
     mockVendorsService.ensureVendor.mockResolvedValue({
       id: 'vendor-1',
       eventId: 'event-1',
-    });
-    mockContactConsentService.findAcceptedConsent.mockResolvedValue({
-      id: 'consent-1',
     });
     mockConversationRepo.findOne.mockResolvedValue(
       createConversation({ visitorDeletedAt: new Date() }),
