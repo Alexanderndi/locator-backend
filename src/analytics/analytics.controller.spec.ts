@@ -51,10 +51,14 @@ describe('AnalyticsController', () => {
     analyticsService.searchAnalytics.mockReturnValue({ totalSearches: 10 });
 
     expect(
-      controller.searchAnalytics('event-1', {
-        from: '2026-07-01',
-        to: '2026-07-24',
-      }, user),
+      controller.searchAnalytics(
+        'event-1',
+        {
+          from: '2026-07-01',
+          to: '2026-07-24',
+        },
+        user,
+      ),
     ).toEqual({ totalSearches: 10 });
     expect(analyticsService.searchAnalytics).toHaveBeenCalledWith(
       'event-1',

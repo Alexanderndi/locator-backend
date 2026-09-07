@@ -131,7 +131,7 @@ export class AdminService {
   }
 
   async listOrganizationAdmins(organizationId: string, user: User) {
-    await this.assertOrganizationAccess(user, organizationId);
+    this.assertOrganizationAccess(user, organizationId);
 
     const admins = await this.userRepository.find({
       where: {
@@ -158,7 +158,7 @@ export class AdminService {
     dto: CreateOrganizationAdminDto,
     user: User,
   ) {
-    await this.assertOrganizationAccess(user, organizationId);
+    this.assertOrganizationAccess(user, organizationId);
 
     const org = await this.organizationRepository.findOne({
       where: { id: organizationId },
@@ -982,7 +982,7 @@ export class AdminService {
     throw new ForbiddenException('Admin access required');
   }
 
-  private async assertOrganizationAccess(user: User, organizationId: string) {
+  private assertOrganizationAccess(user: User, organizationId: string) {
     if (user.role === UserRole.ADMIN) return;
     if (user.role === UserRole.ORGANIZER) {
       if (user.organizationId && user.organizationId === organizationId) return;
