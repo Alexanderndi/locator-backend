@@ -410,6 +410,7 @@ export class AuthService {
       avatarUrl: user.avatarUrl,
       role: user.role,
       vendorId: user.vendorId,
+      organizationId: user.organizationId,
       createdAt: user.createdAt,
     };
   }

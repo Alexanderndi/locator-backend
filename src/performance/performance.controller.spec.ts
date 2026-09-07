@@ -34,7 +34,13 @@ describe('PerformanceController', () => {
   it('delegates GET /performance/dashboard/:eventId to dashboard with default hours', () => {
     performanceService.dashboard.mockReturnValue({ crashCount: 0 });
 
-    expect(controller.dashboard('event-1', {})).toEqual({ crashCount: 0 });
-    expect(performanceService.dashboard).toHaveBeenCalledWith('event-1', 1);
+    expect(controller.dashboard('event-1', {}, user)).toEqual({
+      crashCount: 0,
+    });
+    expect(performanceService.dashboard).toHaveBeenCalledWith(
+      'event-1',
+      1,
+      user,
+    );
   });
 });

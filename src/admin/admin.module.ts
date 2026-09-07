@@ -11,6 +11,7 @@ import { AdminAuditLog } from '../entities/admin-audit-log.entity';
 import { Event } from '../entities/event.entity';
 import { Category } from '../entities/category.entity';
 import { User } from '../entities/user.entity';
+import { Organization } from '../entities/organization.entity';
 import { EventsModule } from '../events/events.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { ContactConsentModule } from '../contact-consent/contact-consent.module';
@@ -28,6 +29,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       Event,
       Category,
       User,
+      Organization,
     ]),
     EventsModule,
     AnalyticsModule,

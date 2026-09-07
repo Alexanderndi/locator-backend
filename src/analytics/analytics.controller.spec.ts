@@ -51,15 +51,20 @@ describe('AnalyticsController', () => {
     analyticsService.searchAnalytics.mockReturnValue({ totalSearches: 10 });
 
     expect(
-      controller.searchAnalytics('event-1', {
-        from: '2026-07-01',
-        to: '2026-07-24',
-      }),
+      controller.searchAnalytics(
+        'event-1',
+        {
+          from: '2026-07-01',
+          to: '2026-07-24',
+        },
+        user,
+      ),
     ).toEqual({ totalSearches: 10 });
     expect(analyticsService.searchAnalytics).toHaveBeenCalledWith(
       'event-1',
       '2026-07-01',
       '2026-07-24',
+      user,
     );
   });
 
@@ -70,12 +75,13 @@ describe('AnalyticsController', () => {
     analyticsService.searchAnalytics.mockResolvedValue({ topSearches: [] });
     analyticsService.searchAnalyticsCsv.mockReturnValue('query,count\n');
 
-    await controller.searchAnalyticsExport('event-1', {}, res);
+    await controller.searchAnalyticsExport('event-1', {}, user, res);
 
     expect(analyticsService.searchAnalytics).toHaveBeenCalledWith(
       'event-1',
       undefined,
       undefined,
+      user,
     );
     expect(setHeader).toHaveBeenCalledWith(
       'Content-Type',
@@ -91,7 +97,11 @@ describe('AnalyticsController', () => {
   it('delegates GET /analytics/dashboard/:eventId to dashboard', () => {
     analyticsService.dashboard.mockReturnValue({ dau: 100 });
 
-    expect(controller.dashboard('event-1')).toEqual({ dau: 100 });
-    expect(analyticsService.dashboard).toHaveBeenCalledWith('event-1');
+    expect(controller.dashboard('event-1', user)).toEqual({ dau: 100 });
+    expect(analyticsService.dashboard).toHaveBeenCalledWith(
+      'event-1',
+      undefined,
+      user,
+    );
   });
 });

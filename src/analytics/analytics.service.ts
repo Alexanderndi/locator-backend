@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, Between } from 'typeorm';
 import { AnalyticsEvent } from '../entities/analytics-event.entity';
@@ -6,6 +6,7 @@ import { Vendor } from '../entities/vendor.entity';
 import { EventsService } from '../events/events.service';
 import { TrackEventDto, TrackEventItemDto } from './dto/analytics.dto';
 import { User } from '../entities/user.entity';
+import { UserRole } from '../common/enums';
 
 const BLOCKED_PROPERTY_KEYS = new Set([
   'password',
@@ -70,8 +71,15 @@ export class AnalyticsService {
     return { recorded: rows.length };
   }
 
-  async searchAnalytics(eventId: string, from?: string, to?: string) {
-    const event = await this.eventsService.ensureEvent(eventId);
+  async searchAnalytics(
+    eventId: string,
+    from?: string,
+    to?: string,
+    user?: User,
+  ) {
+    const event = user
+      ? await this.assertEventAccess(user, eventId)
+      : await this.eventsService.ensureEvent(eventId);
     const { rangeStart, rangeEnd } = this.resolveSearchDateRange(
       event.startDate,
       event.endDate,
@@ -171,8 +179,10 @@ export class AnalyticsService {
     return lines.join('\n');
   }
 
-  async dashboard(eventId: string, compareEventId?: string) {
-    const event = await this.eventsService.ensureEvent(eventId);
+  async dashboard(eventId: string, compareEventId?: string, user?: User) {
+    const event = user
+      ? await this.assertEventAccess(user, eventId)
+      : await this.eventsService.ensureEvent(eventId);
     const now = new Date();
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
@@ -217,6 +227,9 @@ export class AnalyticsService {
       ReturnType<AnalyticsService['dashboardSummary']>
     > | null = null;
     if (compareEventId && compareEventId !== eventId) {
+      if (user) {
+        await this.assertEventAccess(user, compareEventId);
+      }
       comparison = await this.dashboardSummary(compareEventId);
     }
 
@@ -313,6 +326,18 @@ export class AnalyticsService {
       }
     }
     return uniqueUsers.size;
+  }
+
+  private async assertEventAccess(user: User, eventId: string) {
+    const event = await this.eventsService.ensureEvent(eventId);
+    if (user.role === UserRole.ADMIN) return event;
+    if (user.role === UserRole.ORGANIZER) {
+      if (user.organizationId && user.organizationId === event.organizationId) {
+        return event;
+      }
+      throw new ForbiddenException('Not authorized for this event');
+    }
+    throw new ForbiddenException('Admin access required');
   }
 
   private buildDailyTrend(events: AnalyticsEvent[], start: Date, end: Date) {

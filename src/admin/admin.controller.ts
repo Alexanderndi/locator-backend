@@ -25,6 +25,10 @@ import {
   CreateAnnouncementDto,
   UpdateAnnouncementDto,
   CreateContactConsentAdminDto,
+  CreateOrganizationDto,
+  CreateOrganizationAdminDto,
+  CreateEventDto,
+  UpdateEventDto,
 } from './dto/admin.dto';
 
 @Controller('admin')
@@ -39,6 +43,7 @@ export class AdminController {
   }
 
   @Get('customers')
+  @Roles(UserRole.ADMIN)
   listCustomers(
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
@@ -49,6 +54,52 @@ export class AdminController {
       page ? Number(page) : 1,
       size ? Number(size) : 10,
     );
+  }
+
+  @Get('organizations')
+  @Roles(UserRole.ADMIN)
+  listOrganizations(@CurrentUser() user: User) {
+    return this.adminService.listOrganizations(user);
+  }
+
+  @Post('organizations')
+  @Roles(UserRole.ADMIN)
+  createOrganization(
+    @Body() dto: CreateOrganizationDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.createOrganization(dto, user);
+  }
+
+  @Get('organizations/:organizationId/admins')
+  listOrganizationAdmins(
+    @Param('organizationId') organizationId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.listOrganizationAdmins(organizationId, user);
+  }
+
+  @Post('organizations/:organizationId/admins')
+  createOrganizationAdmin(
+    @Param('organizationId') organizationId: string,
+    @Body() dto: CreateOrganizationAdminDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.createOrganizationAdmin(organizationId, dto, user);
+  }
+
+  @Post('events')
+  createEvent(@Body() dto: CreateEventDto, @CurrentUser() user: User) {
+    return this.adminService.createEvent(dto, user);
+  }
+
+  @Patch('events/:eventId')
+  updateEvent(
+    @Param('eventId') eventId: string,
+    @Body() dto: UpdateEventDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.updateEvent(eventId, dto, user);
   }
 
   @Get('events/:eventId/categories')
