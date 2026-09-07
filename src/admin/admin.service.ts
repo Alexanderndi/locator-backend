@@ -333,6 +333,7 @@ export class AdminService {
     const qb = this.eventRepository
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('event.organization', 'organization')
       .orderBy('event.start_date', 'DESC');
 
     if (user.role === UserRole.ORGANIZER) {
@@ -346,6 +347,8 @@ export class AdminService {
     return {
       data: events.map((event) => ({
         id: event.id,
+        organizationId: event.organizationId,
+        organizationName: event.organization?.name ?? null,
         name: event.name,
         status: event.status,
         startDate: event.startDate,

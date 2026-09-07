@@ -201,6 +201,9 @@ export class EventsService {
       timezone: event.timezone,
       status: event.status,
       coverImageUrl: event.coverImageUrl,
+      organization: event.organization
+        ? { id: event.organization.id, name: event.organization.name }
+        : null,
       venue: event.venue
         ? {
             id: event.venue.id,
@@ -223,14 +226,7 @@ export class EventsService {
           }
         : null,
     };
-    if (detailed) {
-      return {
-        ...base,
-        organization: event.organization
-          ? { id: event.organization.id, name: event.organization.name }
-          : null,
-      };
-    }
+    if (detailed) return base;
     return base;
   }
 
