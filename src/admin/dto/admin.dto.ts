@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AnnouncementPriority } from '../../common/enums';
+import { AnnouncementPriority, EventStatus } from '../../common/enums';
 
 export class CreateVendorDto {
   @IsString()
@@ -154,4 +154,97 @@ export class CreateContactConsentAdminDto {
   @IsOptional()
   @IsEmail()
   userEmail?: string;
+}
+
+export class CreateOrganizationDto {
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsEmail()
+  contactEmail?: string;
+}
+
+export class CreateOrganizationAdminDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  displayName: string;
+
+  @IsString()
+  password: string;
+}
+
+export class CreateEventDto {
+  @IsOptional()
+  @IsUUID()
+  organizationId?: string;
+
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsString()
+  startDate: string;
+
+  @IsString()
+  endDate: string;
+
+  @IsOptional()
+  @IsString()
+  timezone?: string;
+
+  @IsOptional()
+  @IsEnum(EventStatus)
+  status?: EventStatus;
+
+  @IsOptional()
+  @IsUUID()
+  venueId?: string;
+
+  @IsOptional()
+  @IsString()
+  coverImageUrl?: string;
+}
+
+export class UpdateEventDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsString()
+  endDate?: string;
+
+  @IsOptional()
+  @IsString()
+  timezone?: string;
+
+  @IsOptional()
+  @IsEnum(EventStatus)
+  status?: EventStatus;
+
+  @IsOptional()
+  @IsUUID()
+  venueId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  coverImageUrl?: string | null;
 }

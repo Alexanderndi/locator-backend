@@ -45,8 +45,14 @@ export class AnalyticsController {
   searchAnalytics(
     @Param('eventId') eventId: string,
     @Query() query: SearchAnalyticsQueryDto,
+    @CurrentUser() user: User,
   ) {
-    return this.analyticsService.searchAnalytics(eventId, query.from, query.to);
+    return this.analyticsService.searchAnalytics(
+      eventId,
+      query.from,
+      query.to,
+      user,
+    );
   }
 
   @Get('search/:eventId/export')
@@ -55,12 +61,14 @@ export class AnalyticsController {
   async searchAnalyticsExport(
     @Param('eventId') eventId: string,
     @Query() query: SearchAnalyticsQueryDto,
+    @CurrentUser() user: User,
     @Res() res: Response,
   ) {
     const report = await this.analyticsService.searchAnalytics(
       eventId,
       query.from,
       query.to,
+      user,
     );
     const csv = this.analyticsService.searchAnalyticsCsv(report);
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -74,7 +82,7 @@ export class AnalyticsController {
   @Get('dashboard/:eventId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
-  dashboard(@Param('eventId') eventId: string) {
-    return this.analyticsService.dashboard(eventId);
+  dashboard(@Param('eventId') eventId: string, @CurrentUser() user: User) {
+    return this.analyticsService.dashboard(eventId, undefined, user);
   }
 }

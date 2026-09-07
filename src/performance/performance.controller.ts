@@ -39,7 +39,8 @@ export class PerformanceController {
   dashboard(
     @Param('eventId') eventId: string,
     @Query() query: PerformanceDashboardQueryDto,
+    @CurrentUser() user: User,
   ) {
-    return this.performanceService.dashboard(eventId, query.hours ?? 1);
+    return this.performanceService.dashboard(eventId, query.hours ?? 1, user);
   }
 }

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 import { Vendor } from '../entities/vendor.entity';
 import { Product } from '../entities/product.entity';
 import { Promotion } from '../entities/promotion.entity';
@@ -18,6 +19,7 @@ import { AdminAuditLog } from '../entities/admin-audit-log.entity';
 import { Event } from '../entities/event.entity';
 import { Category } from '../entities/category.entity';
 import { User } from '../entities/user.entity';
+import { Organization } from '../entities/organization.entity';
 import { EventsService } from '../events/events.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { buildQrPayload } from '../common/utils/qr.util';
@@ -29,8 +31,12 @@ import {
   CreateAnnouncementDto,
   UpdateAnnouncementDto,
   CreateContactConsentAdminDto,
+  CreateOrganizationDto,
+  CreateOrganizationAdminDto,
+  CreateEventDto,
+  UpdateEventDto,
 } from './dto/admin.dto';
-import { AnnouncementPriority, UserRole } from '../common/enums';
+import { AnnouncementPriority, EventStatus, UserRole } from '../common/enums';
 import { PushDeliveryService } from '../notifications/push-delivery.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ContactConsentService } from '../contact-consent/contact-consent.service';
@@ -59,6 +65,8 @@ export class AdminService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
     private readonly eventsService: EventsService,
     private readonly analyticsService: AnalyticsService,
     private readonly configService: ConfigService,
@@ -66,6 +74,260 @@ export class AdminService {
     private readonly pushDeliveryService: PushDeliveryService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  async listOrganizations(user: User) {
+    if (user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Super admin access required');
+    }
+
+    const orgs = await this.organizationRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    // Portable across SQLite/Postgres.
+    const counts = await this.eventRepository
+      .createQueryBuilder('event')
+      .select('event.organization_id', 'organizationId')
+      .addSelect('COUNT(*)', 'count')
+      .groupBy('event.organization_id')
+      .getRawMany<{ organizationId: string; count: string }>();
+
+    const countByOrg = new Map(
+      counts.map((row) => [row.organizationId, Number(row.count)]),
+    );
+
+    return {
+      data: orgs.map((org) => ({
+        id: org.id,
+        name: org.name,
+        description: org.description,
+        contactEmail: org.contactEmail,
+        createdAt: org.createdAt.toISOString(),
+        eventCount: countByOrg.get(org.id) ?? 0,
+      })),
+    };
+  }
+
+  async createOrganization(dto: CreateOrganizationDto, user: User) {
+    if (user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Super admin access required');
+    }
+
+    const org = await this.organizationRepository.save(
+      this.organizationRepository.create({
+        name: dto.name.trim(),
+        description: dto.description?.trim() || null,
+        contactEmail: dto.contactEmail?.toLowerCase().trim() || null,
+      }),
+    );
+
+    return {
+      id: org.id,
+      name: org.name,
+      description: org.description,
+      contactEmail: org.contactEmail,
+      createdAt: org.createdAt.toISOString(),
+    };
+  }
+
+  async listOrganizationAdmins(organizationId: string, user: User) {
+    await this.assertOrganizationAccess(user, organizationId);
+
+    const admins = await this.userRepository.find({
+      where: {
+        role: UserRole.ORGANIZER,
+        organizationId,
+        deletedAt: IsNull(),
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      data: admins.map((u) => ({
+        id: u.id,
+        email: u.email,
+        displayName: u.displayName,
+        organizationId: u.organizationId,
+        createdAt: u.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  async createOrganizationAdmin(
+    organizationId: string,
+    dto: CreateOrganizationAdminDto,
+    user: User,
+  ) {
+    await this.assertOrganizationAccess(user, organizationId);
+
+    const org = await this.organizationRepository.findOne({
+      where: { id: organizationId },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    const email = dto.email.toLowerCase().trim();
+    const existing = await this.userRepository.findOne({
+      where: { email, deletedAt: IsNull() },
+    });
+    if (existing) {
+      throw new BadRequestException('A user with this email already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+    const created = await this.userRepository.save(
+      this.userRepository.create({
+        email,
+        passwordHash,
+        displayName: dto.displayName.trim(),
+        role: UserRole.ORGANIZER,
+        organizationId,
+      }),
+    );
+
+    // Note: we intentionally do NOT write to AdminAuditLog here because that table
+    // requires a real eventId UUID (Postgres uuid column). We'll add org-level auditing later.
+    return {
+      id: created.id,
+      email: created.email,
+      displayName: created.displayName,
+      role: created.role,
+      organizationId: created.organizationId,
+      createdAt: created.createdAt.toISOString(),
+    };
+  }
+
+  async createEvent(dto: CreateEventDto, user: User) {
+    let organizationId = dto.organizationId;
+
+    if (user.role === UserRole.ORGANIZER) {
+      if (!user.organizationId) {
+        throw new ForbiddenException('Organizer organization not configured');
+      }
+      organizationId = user.organizationId;
+    }
+
+    if (user.role === UserRole.ADMIN) {
+      if (!organizationId) {
+        throw new BadRequestException('organizationId is required');
+      }
+    }
+
+    if (!organizationId) {
+      throw new BadRequestException('organizationId is required');
+    }
+
+    const org = await this.organizationRepository.findOne({
+      where: { id: organizationId },
+    });
+    if (!org) throw new NotFoundException('Organization not found');
+
+    if (dto.startDate > dto.endDate) {
+      throw new BadRequestException('startDate must be on or before endDate');
+    }
+
+    const event = await this.eventRepository.save(
+      this.eventRepository.create({
+        organizationId,
+        venueId: dto.venueId ?? null,
+        name: dto.name.trim(),
+        description: dto.description?.trim() || null,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        timezone: dto.timezone?.trim() || 'Africa/Lagos',
+        status: dto.status ?? EventStatus.DRAFT,
+        coverImageUrl: dto.coverImageUrl?.trim() || null,
+      }),
+    );
+
+    await this.recordAudit({
+      eventId: event.id,
+      entityType: 'event',
+      entityId: event.id,
+      action: 'create',
+      user,
+      metadata: { organizationId },
+    });
+
+    return {
+      id: event.id,
+      organizationId: event.organizationId,
+      name: event.name,
+      description: event.description,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      timezone: event.timezone,
+      status: event.status,
+      venueId: event.venueId,
+      coverImageUrl: event.coverImageUrl,
+      createdAt: event.createdAt.toISOString(),
+    };
+  }
+
+  async updateEvent(eventId: string, dto: UpdateEventDto, user: User) {
+    const event = await this.assertEventAccess(user, eventId);
+    const changes: Record<string, unknown> = {};
+
+    if (dto.name !== undefined) {
+      event.name = dto.name.trim();
+      changes.name = event.name;
+    }
+    if (dto.description !== undefined) {
+      event.description = dto.description ? dto.description.trim() : null;
+      changes.description = event.description;
+    }
+    if (dto.startDate !== undefined) {
+      event.startDate = dto.startDate;
+      changes.startDate = event.startDate;
+    }
+    if (dto.endDate !== undefined) {
+      event.endDate = dto.endDate;
+      changes.endDate = event.endDate;
+    }
+    if (dto.timezone !== undefined) {
+      event.timezone = dto.timezone.trim();
+      changes.timezone = event.timezone;
+    }
+    if (dto.status !== undefined) {
+      event.status = dto.status;
+      changes.status = event.status;
+    }
+    if (dto.venueId !== undefined) {
+      event.venueId = dto.venueId ?? null;
+      changes.venueId = event.venueId;
+    }
+    if (dto.coverImageUrl !== undefined) {
+      event.coverImageUrl = dto.coverImageUrl ? dto.coverImageUrl.trim() : null;
+      changes.coverImageUrl = event.coverImageUrl;
+    }
+
+    if (event.startDate > event.endDate) {
+      throw new BadRequestException('startDate must be on or before endDate');
+    }
+
+    await this.eventRepository.save(event);
+    await this.recordAudit({
+      eventId,
+      entityType: 'event',
+      entityId: eventId,
+      action: 'update',
+      user,
+      metadata: { changes },
+    });
+
+    return {
+      id: event.id,
+      organizationId: event.organizationId,
+      name: event.name,
+      description: event.description,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      timezone: event.timezone,
+      status: event.status,
+      venueId: event.venueId,
+      coverImageUrl: event.coverImageUrl,
+      createdAt: event.createdAt.toISOString(),
+    };
+  }
 
   async listManageableEvents(user: User) {
     const qb = this.eventRepository
@@ -716,6 +978,15 @@ export class AdminService {
         return event;
       }
       throw new ForbiddenException('Not authorized for this event');
+    }
+    throw new ForbiddenException('Admin access required');
+  }
+
+  private async assertOrganizationAccess(user: User, organizationId: string) {
+    if (user.role === UserRole.ADMIN) return;
+    if (user.role === UserRole.ORGANIZER) {
+      if (user.organizationId && user.organizationId === organizationId) return;
+      throw new ForbiddenException('Not authorized for this organization');
     }
     throw new ForbiddenException('Admin access required');
   }

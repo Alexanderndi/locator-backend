@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { PerformanceEvent } from '../entities/performance-event.entity';
@@ -6,6 +6,7 @@ import { AnalyticsEvent } from '../entities/analytics-event.entity';
 import { EventsService } from '../events/events.service';
 import { PerformanceEventItemDto } from './dto/performance.dto';
 import { User } from '../entities/user.entity';
+import { UserRole } from '../common/enums';
 
 const BLOCKED_PROPERTY_KEYS = new Set([
   'password',
@@ -70,8 +71,12 @@ export class PerformanceService {
     );
   }
 
-  async dashboard(eventId: string, hours = 1) {
-    await this.eventsService.ensureEvent(eventId);
+  async dashboard(eventId: string, hours = 1, user?: User) {
+    if (user) {
+      await this.assertEventAccess(user, eventId);
+    } else {
+      await this.eventsService.ensureEvent(eventId);
+    }
     const since = new Date(Date.now() - hours * 60 * 60 * 1000);
 
     const [performanceEvents, sessionEvents] = await Promise.all([
@@ -154,6 +159,18 @@ export class PerformanceService {
     const sorted = [...values].sort((a, b) => a - b);
     const index = Math.ceil((p / 100) * sorted.length) - 1;
     return sorted[Math.max(0, index)];
+  }
+
+  private async assertEventAccess(user: User, eventId: string) {
+    const event = await this.eventsService.ensureEvent(eventId);
+    if (user.role === UserRole.ADMIN) return event;
+    if (user.role === UserRole.ORGANIZER) {
+      if (user.organizationId && user.organizationId === event.organizationId) {
+        return event;
+      }
+      throw new ForbiddenException('Not authorized for this event');
+    }
+    throw new ForbiddenException('Admin access required');
   }
 
   private sanitizeProperties(
