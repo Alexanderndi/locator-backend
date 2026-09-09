@@ -7,11 +7,15 @@ import {
   Body,
   Param,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   StreamableFile,
   Header,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -108,6 +112,21 @@ export class AdminController {
     @CurrentUser() user: User,
   ) {
     return this.adminService.updateEvent(eventId, dto, user);
+  }
+
+  @Post('events/:eventId/cover')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: memoryStorage(),
+      limits: { fileSize: 8 * 1024 * 1024 },
+    }),
+  )
+  uploadEventCover(
+    @Param('eventId') eventId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.uploadEventCover(eventId, file, user);
   }
 
   @Get('events/:eventId/categories')

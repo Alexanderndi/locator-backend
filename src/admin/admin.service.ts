@@ -44,6 +44,7 @@ import { ContactConsentService } from '../contact-consent/contact-consent.servic
 import { assertUniqueBooth } from '../common/utils/booth.util';
 import { buildVendorQrPdf } from './qr-pdf.service';
 import { buildDashboardPdf } from './dashboard-pdf.service';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class AdminService {
@@ -76,6 +77,7 @@ export class AdminService {
     private readonly contactConsentService: ContactConsentService,
     private readonly pushDeliveryService: PushDeliveryService,
     private readonly notificationsService: NotificationsService,
+    private readonly mediaService: MediaService,
   ) {}
 
   async listOrganizations(user: User) {
@@ -263,6 +265,42 @@ export class AdminService {
       venueId: event.venueId,
       coverImageUrl: event.coverImageUrl,
       createdAt: event.createdAt.toISOString(),
+    };
+  }
+
+  async uploadEventCover(
+    eventId: string,
+    file: Express.Multer.File,
+    user: User,
+  ) {
+    const event = await this.assertEventAccess(user, eventId);
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+
+    const previous = event.coverImageUrl;
+    const saved = this.mediaService.saveEventCoverImage(file);
+    event.coverImageUrl = saved.imageUrl;
+    await this.eventRepository.save(event);
+
+    // Best effort cleanup (local uploads only).
+    this.mediaService.deleteEventCoverImage(previous);
+
+    await this.recordAudit({
+      eventId,
+      entityType: 'event',
+      entityId: eventId,
+      action: 'update_banner',
+      user,
+      metadata: {
+        previous,
+        next: event.coverImageUrl,
+      },
+    });
+
+    return {
+      coverImageUrl: event.coverImageUrl,
+      coverImagePublicUrl: this.mediaService.toPublicUrl(event.coverImageUrl),
     };
   }
 
