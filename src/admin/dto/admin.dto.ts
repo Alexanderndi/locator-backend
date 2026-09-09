@@ -215,6 +215,40 @@ export class CreateEventDto {
   coverImageUrl?: string;
 }
 
+export class UpdateVenueDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  boundaryNorth?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  boundarySouth?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  boundaryEast?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  boundaryWest?: number | null;
+}
+
 export class UpdateEventDto {
   @IsOptional()
   @IsString()
@@ -247,4 +281,9 @@ export class UpdateEventDto {
   @IsOptional()
   @IsString()
   coverImageUrl?: string | null;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateVenueDto)
+  venue?: UpdateVenueDto;
 }

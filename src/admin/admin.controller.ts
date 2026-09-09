@@ -42,6 +42,14 @@ export class AdminController {
     return this.adminService.listManageableEvents(user);
   }
 
+  @Get('events/:eventId')
+  getEventDetails(
+    @Param('eventId') eventId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.adminService.getEventDetails(eventId, user);
+  }
+
   @Get('customers')
   @Roles(UserRole.ADMIN)
   listCustomers(

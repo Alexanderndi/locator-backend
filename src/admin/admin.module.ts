@@ -12,6 +12,7 @@ import { Event } from '../entities/event.entity';
 import { Category } from '../entities/category.entity';
 import { User } from '../entities/user.entity';
 import { Organization } from '../entities/organization.entity';
+import { Venue } from '../entities/venue.entity';
 import { EventsModule } from '../events/events.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { ContactConsentModule } from '../contact-consent/contact-consent.module';
@@ -30,6 +31,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       Category,
       User,
       Organization,
+      Venue,
     ]),
     EventsModule,
     AnalyticsModule,

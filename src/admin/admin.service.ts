@@ -20,6 +20,7 @@ import { Event } from '../entities/event.entity';
 import { Category } from '../entities/category.entity';
 import { User } from '../entities/user.entity';
 import { Organization } from '../entities/organization.entity';
+import { Venue } from '../entities/venue.entity';
 import { EventsService } from '../events/events.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 import { buildQrPayload } from '../common/utils/qr.util';
@@ -61,6 +62,8 @@ export class AdminService {
     private readonly auditLogRepository: Repository<AdminAuditLog>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Venue)
+    private readonly venueRepository: Repository<Venue>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
@@ -329,6 +332,110 @@ export class AdminService {
     };
   }
 
+  private resolveVenueBounds(venue: Venue | null | undefined) {
+    if (!venue) return null;
+    if (
+      venue.boundaryNorth == null ||
+      venue.boundarySouth == null ||
+      venue.boundaryEast == null ||
+      venue.boundaryWest == null
+    ) {
+      return null;
+    }
+
+    const north = Math.max(
+      Number(venue.boundaryNorth),
+      Number(venue.boundarySouth),
+    );
+    const south = Math.min(
+      Number(venue.boundaryNorth),
+      Number(venue.boundarySouth),
+    );
+    const east = Math.max(
+      Number(venue.boundaryEast),
+      Number(venue.boundaryWest),
+    );
+    const west = Math.min(
+      Number(venue.boundaryEast),
+      Number(venue.boundaryWest),
+    );
+
+    return { north, south, east, west };
+  }
+
+  private assertWithinBounds(
+    bounds: { north: number; south: number; east: number; west: number },
+    latitude: number,
+    longitude: number,
+  ) {
+    if (
+      latitude < bounds.south ||
+      latitude > bounds.north ||
+      longitude < bounds.west ||
+      longitude > bounds.east
+    ) {
+      throw new BadRequestException(
+        `Booth location must be within the event boundary. Received (${latitude}, ${longitude}).`,
+      );
+    }
+  }
+
+  async getEventDetails(eventId: string, user: User) {
+    const qb = this.eventRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.venue', 'venue')
+      .leftJoinAndSelect('event.organization', 'organization')
+      .where('event.id = :eventId', { eventId });
+
+    if (user.role === UserRole.ORGANIZER) {
+      if (!user.organizationId) {
+        throw new ForbiddenException('Organization access required');
+      }
+      qb.andWhere('event.organization_id = :orgId', {
+        orgId: user.organizationId,
+      });
+    }
+
+    const event = await qb.getOne();
+    if (!event) throw new NotFoundException('Event not found');
+
+    return {
+      id: event.id,
+      organizationId: event.organizationId,
+      organizationName: event.organization?.name ?? null,
+      name: event.name,
+      description: event.description,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      timezone: event.timezone,
+      status: event.status,
+      venueId: event.venueId,
+      coverImageUrl: event.coverImageUrl,
+      createdAt: event.createdAt.toISOString(),
+      venue: event.venue
+        ? {
+            id: event.venue.id,
+            name: event.venue.name,
+            address: event.venue.address,
+            latitude: Number(event.venue.latitude),
+            longitude: Number(event.venue.longitude),
+            boundaryNorth: event.venue.boundaryNorth
+              ? Number(event.venue.boundaryNorth)
+              : null,
+            boundarySouth: event.venue.boundarySouth
+              ? Number(event.venue.boundarySouth)
+              : null,
+            boundaryEast: event.venue.boundaryEast
+              ? Number(event.venue.boundaryEast)
+              : null,
+            boundaryWest: event.venue.boundaryWest
+              ? Number(event.venue.boundaryWest)
+              : null,
+          }
+        : null,
+    };
+  }
+
   async listManageableEvents(user: User) {
     const qb = this.eventRepository
       .createQueryBuilder('event')
@@ -408,6 +515,7 @@ export class AdminService {
 
   async listCategories(eventId: string, user: User) {
     await this.assertEventAccess(user, eventId);
+
     const categories = await this.categoryRepository.find({
       where: { eventId },
       order: { sortOrder: 'ASC', name: 'ASC' },
@@ -444,7 +552,9 @@ export class AdminService {
   }
 
   async createVendor(eventId: string, dto: CreateVendorDto, user: User) {
-    await this.assertEventAccess(user, eventId);
+    const event = await this.assertEventAccess(user, eventId);
+    const bounds = this.resolveVenueBounds(event.venue);
+    if (bounds) this.assertWithinBounds(bounds, dto.latitude, dto.longitude);
     await assertUniqueBooth(this.vendorRepository, eventId, dto.boothNumber);
     const vendor = await this.persistVendor(eventId, dto, user);
     await this.recordAudit({
@@ -469,7 +579,14 @@ export class AdminService {
     user: User,
   ) {
     const vendor = await this.getEventVendor(eventId, vendorId);
-    await this.assertEventAccess(user, eventId);
+    const event = await this.assertEventAccess(user, eventId);
+
+    if (dto.latitude !== undefined || dto.longitude !== undefined) {
+      const nextLat = dto.latitude ?? Number(vendor.latitude);
+      const nextLng = dto.longitude ?? Number(vendor.longitude);
+      const bounds = this.resolveVenueBounds(event.venue);
+      if (bounds) this.assertWithinBounds(bounds, nextLat, nextLng);
+    }
 
     if (dto.boothNumber !== undefined) {
       await assertUniqueBooth(
@@ -531,7 +648,8 @@ export class AdminService {
   }
 
   async bulkImport(eventId: string, dto: BulkImportVendorsDto, user: User) {
-    await this.assertEventAccess(user, eventId);
+    const event = await this.assertEventAccess(user, eventId);
+    const bounds = this.resolveVenueBounds(event.venue);
     const categories = await this.categoryRepository.find({
       where: { eventId },
     });
@@ -563,6 +681,14 @@ export class AdminService {
       }
 
       try {
+        if (bounds) {
+          this.assertWithinBounds(
+            bounds,
+            instance.latitude,
+            instance.longitude,
+          );
+        }
+
         const vendor = await this.persistVendor(eventId, instance, user);
         await this.recordAudit({
           eventId,
