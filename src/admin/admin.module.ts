@@ -17,6 +17,7 @@ import { EventsModule } from '../events/events.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { ContactConsentModule } from '../contact-consent/contact-consent.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { MediaModule } from '../media/media.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     AnalyticsModule,
     ContactConsentModule,
     NotificationsModule,
+    MediaModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

@@ -29,7 +29,7 @@ export class MediaService {
 
   constructor(private readonly configService: ConfigService) {
     this.uploadRoot = getUploadRoot();
-    for (const folder of ['catalogue', 'chat']) {
+    for (const folder of ['catalogue', 'chat', 'events']) {
       const dir = join(this.uploadRoot, folder);
       if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
@@ -40,9 +40,7 @@ export class MediaService {
   assertImageMime(mimeType?: string | null) {
     const normalized = (mimeType ?? '').toLowerCase().trim();
     if (!ALLOWED_MIME_TYPES.has(normalized)) {
-      throw new BadRequestException(
-        'Catalogue supports images only (JPEG, PNG, WebP)',
-      );
+      throw new BadRequestException('Images only (JPEG, PNG, WebP, HEIC)');
     }
     return normalized === 'image/jpg' ? 'image/jpeg' : normalized;
   }
@@ -61,9 +59,16 @@ export class MediaService {
     return this.saveImage(file, 'chat');
   }
 
+  saveEventCoverImage(file: Express.Multer.File): {
+    imageUrl: string;
+    mimeType: string;
+  } {
+    return this.saveImage(file, 'events');
+  }
+
   private saveImage(
     file: Express.Multer.File,
-    folder: 'catalogue' | 'chat',
+    folder: 'catalogue' | 'chat' | 'events',
   ): { imageUrl: string; mimeType: string } {
     if (!file?.buffer?.length) {
       throw new BadRequestException('Image file is required');
@@ -89,6 +94,10 @@ export class MediaService {
 
   deleteChatImage(imageUrl?: string | null) {
     this.deleteImage(imageUrl, 'chat');
+  }
+
+  deleteEventCoverImage(imageUrl?: string | null) {
+    this.deleteImage(imageUrl, 'events');
   }
 
   private deleteImage(imageUrl: string | null | undefined, folder: string) {
